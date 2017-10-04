@@ -11,7 +11,7 @@ public class Hearthstone {
         String url = "https://omgvamp-hearthstone-v1.p.mashape.com/cards/" + card.substring(6).replace(" ", "%20");
         InputStream is = HttpRequest.sendGet(url, key);
         if (is != null) {       
-            String response = JsonParser.parseJson(is);
+            String response = JsonParser.parseJson(is, "card");
             is.close();
             return response;
         }

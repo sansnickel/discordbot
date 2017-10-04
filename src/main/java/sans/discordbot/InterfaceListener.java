@@ -40,12 +40,12 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
                 String[] responses = response.split("&&");
                 for (String s : responses) {
                     new MessageBuilder(this.client).withChannel(channel).withContent(s).build();
-
                 }
                 
             }
-            else if (msg.startsWith("!lol")) {
-                //lol();
+            else if (msg.startsWith("!cds")) {
+                String response = League.getCDs(msg);
+                new MessageBuilder(this.client).withChannel(channel).withContent(response).build();
             }
             else if (msg.startsWith("!def")) {
                 //def();

@@ -24,6 +24,23 @@ public class HttpRequest {
         }
 
     }
+    public static InputStream sendGet(String url) {
+        try {
+            URL u = new URL(url);
+            HttpURLConnection c = (HttpURLConnection) u.openConnection();
+    
+            c.setRequestMethod("GET");
+            c.setRequestProperty("Accept", "application/json");
+            c.setUseCaches(false);
+            return c.getInputStream();
+        } catch (IOException e) {
+            return null;
+        }
+
+    }
+    
+    
+    
 }
     
 
