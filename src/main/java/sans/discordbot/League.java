@@ -12,7 +12,7 @@ public class League {
             str.append(word.substring(0,1).toUpperCase() + word.substring(1));
         }
         
-        String url = "http://ddragon.leagueoflegends.com/cdn/6.24.1/data/en_US/champion/" + str.toString() + ".json";
+        String url = "http://ddragon.leagueoflegends.com/cdn/7.21.1/data/en_US/champion/" + str.toString() + ".json";
         InputStream is = HttpRequest.sendGet(url);
         if (is != null) {       
             String response = JsonParser.parseJson(is, "cds", str.toString());
