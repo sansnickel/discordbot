@@ -35,21 +35,54 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
             // Builds (sends) and new message in the channel that the original message was sent with the content of the original message.
             //new MessageBuilder(this.client).withChannel(channel).withContent(message.getContent()).build();
             String msg = message.getContent();
+            
             if (msg.startsWith("!card")) {
-                String response = Hearthstone.getCard(msg, this.key);
-                String[] responses = response.split("&&");
-                for (String s : responses) {
-                    new MessageBuilder(this.client).withChannel(channel).withContent(s).build();
-                }
-                
+                sendCardInfo(msg, channel, key);
             }
             else if (msg.startsWith("!cds")) {
-                String response = League.getCDs(msg);
-                new MessageBuilder(this.client).withChannel(channel).withContent(response).build();
+                sendCDInfo(msg, channel);
             }
+            
             else if (msg.startsWith("!def")) {
                 //def();
             }
+            
+            else if (msg.startsWith("!todo")) {
+                String response = Todos.todo(msg);
+                if (response.startsWith("new"))            
+                    new MessageBuilder(this.client).withChannel(channel).withContent(response.substring(4)).build();
+                
+                else if (response.startsWith("add")) {
+                    String newstring = channel.getPinnedMessages().get(0).edit(channel.getPinnedMessages().get(0).getContent() + "\n" + response.substring(4)).getContent();
+                                      
+                    new MessageBuilder(this.client).withChannel(channel).withContent(channel.getPinnedMessages().get(0).getContent()).build();
+                }
+                else if (response.startsWith("del")) {
+                    String todos[] = channel.getPinnedMessages().get(0).getContent().split("\n");
+                    String ntodos[] = new String[todos.length - 1];
+                    for (int i = 0; i < todos.length; i++) {
+                        if (i < Integer.parseInt(response.substring(4)))
+                            ntodos[i] = todos[i]; 
+                        else
+                            ntodos[i] = todos[i+1];
+                    }
+                    StringBuilder str = new StringBuilder();
+                    for (String tds : ntodos)
+                        str.append(tds + "\n");
+                    
+                    new MessageBuilder(this.client).withChannel(channel).withContent(channel.getPinnedMessages().get(0).edit(str.toString()).getContent()).build();
+                }
+                else 
+                    new MessageBuilder(this.client).withChannel(channel).withContent(channel.getPinnedMessages().get(0).getContent()).build();
+            }
+            
+            else if (msg.startsWith("!test")) {
+                new MessageBuilder(this.client).withChannel(channel).withContent("1\n2\n3\n4").build();
+                //new MessageBuilder(this.client).withChannel(channel).withContent(msg.substring(6)).build();
+            }
+
+                
+
             
             
             
@@ -62,12 +95,24 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         } catch (MissingPermissionsException e) { // MissingPermissionsException thrown. The bot doesn't have permission to send the message!
             System.err.print("Missing permissions for channel!");
             e.printStackTrace();
-        } catch (IOException e) {
-            System.err.print("Error with InputStream.");
-            e.printStackTrace();
-         
-        }
+         }
         
+    }
+    
+    void sendMessage(String msg, IChannel channel) {
+        new MessageBuilder(client).withChannel(channel).withContent(msg).build();
+    }
+    
+    void sendCardInfo(String msg, IChannel channel, String key) {
+        String response = Hearthstone.getCardInfoAsString(msg, this.key);
+        String[] responses = response.split("&&");
+        for (String s : responses) {
+            sendMessage(s, channel);
+        }
+    }
+    void sendCDInfo(String msg, IChannel channel) {
+        String response = League.getCDs(msg);
+        sendMessage(response, channel);
     }
     
 }

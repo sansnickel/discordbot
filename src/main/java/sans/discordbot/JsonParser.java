@@ -13,48 +13,47 @@ import org.json.JSONObject;
 
 public class JsonParser {
 
-    
-    public static String parseJson(InputStream is, String from) throws IOException {
-        BufferedReader buffer = new BufferedReader (new InputStreamReader(is));
-        String jsonTxt = buffer.lines().collect(Collectors.joining("\n"));
-        //System.out.println("jsontext:" + jsonTxt);
-        
+    public static String parseJsonHS(InputStream is) throws IOException {
+        JSONArray arr = getJsonArrFromIS(is);
         StringBuilder response = new StringBuilder();
-        if (from.equals("card")) {
-            JSONArray arr = new JSONArray(jsonTxt);
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject obj = arr.getJSONObject(i);
-                String cardSet = obj.getString("cardSet");
-                String img = obj.getString("img");
-                response.append(img + "\nSet: " + cardSet + "&&");
-            }
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.getJSONObject(i);
+            String cardSet = obj.getString("cardSet");
+            String img = obj.getString("img");
+            response.append(img + "\nSet: " + cardSet + "&&");
         }
-        buffer.close();
+        return response.toString();  
+    }
+        
+    public static String parseJsonLoL(InputStream is, String str) throws IOException {
+        JSONObject obj = getJsonObjFromIS(is);
+        JSONArray arr = obj.getJSONObject("data").getJSONObject(str).getJSONArray("spells");
+        StringBuilder response = new StringBuilder();
+        for(int i = 0; i < arr.length(); i++) {
+            String cd = arr.getJSONObject(i).getString("cooldownBurn");   
+            switch (i) {
+                case 0: response.append("Q: "); break;
+                case 1: response.append("W: "); break;
+                case 2: response.append("E: "); break;
+                case 3: response.append("R: "); break;
+                default: break;
+            }
+            response.append(cd + "\n");
+        }
         return response.toString();  
     }
     
-    public static String parseJson(InputStream is, String from, String str) throws IOException {
+    static JSONArray getJsonArrFromIS (InputStream is) throws IOException {
         BufferedReader buffer = new BufferedReader (new InputStreamReader(is));
         String jsonTxt = buffer.lines().collect(Collectors.joining("\n"));
-        //System.out.println("jsontext:" + jsonTxt);
-        StringBuilder response = new StringBuilder();
-
-        if (from.equals("cds")) {
-            JSONArray arr = new JSONObject(jsonTxt).getJSONObject("data").getJSONObject(str).getJSONArray("spells");
-            for(int i = 0; i < arr.length(); i++) {
-                JSONObject obj = arr.getJSONObject(i);
-                String cd = obj.getString("cooldownBurn");   
-                switch (i) {
-                    case 0: response.append("Q: "); break;
-                    case 1: response.append("W: "); break;
-                    case 2: response.append("E: "); break;
-                    case 3: response.append("R: "); break;
-                }
-                response.append(cd + "\n");
-            }       
-        }
-
         buffer.close();
-        return response.toString();  
+        return new JSONArray(jsonTxt);
+    }
+    
+    static JSONObject getJsonObjFromIS (InputStream is) throws IOException {
+        BufferedReader buffer = new BufferedReader (new InputStreamReader(is));
+        String jsonTxt = buffer.lines().collect(Collectors.joining("\n"));
+        buffer.close();
+        return new JSONObject(jsonTxt);
     }
 }
