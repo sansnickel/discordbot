@@ -48,7 +48,10 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
             }
             
             else if (msg.startsWith("!todo")) {
-                String response = Todos.todo(msg);
+                sendTodoInfo(msg, channel);
+                
+                /*
+                String response = Todo.todo(msg);
                 if (response.startsWith("new"))            
                     new MessageBuilder(this.client).withChannel(channel).withContent(response.substring(4)).build();
                 
@@ -74,18 +77,13 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
                 }
                 else 
                     new MessageBuilder(this.client).withChannel(channel).withContent(channel.getPinnedMessages().get(0).getContent()).build();
+                */
             }
             
             else if (msg.startsWith("!test")) {
                 new MessageBuilder(this.client).withChannel(channel).withContent("1\n2\n3\n4").build();
                 //new MessageBuilder(this.client).withChannel(channel).withContent(msg.substring(6)).build();
             }
-
-                
-
-            
-            
-            
         } catch (RateLimitException e) { // RateLimitException thrown. The bot is sending messages too quickly!
             System.err.print("Sending messages too quickly!");
             e.printStackTrace();
@@ -95,7 +93,7 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         } catch (MissingPermissionsException e) { // MissingPermissionsException thrown. The bot doesn't have permission to send the message!
             System.err.print("Missing permissions for channel!");
             e.printStackTrace();
-         }
+        }
         
     }
     
@@ -114,5 +112,11 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         String response = League.getCDs(msg);
         sendMessage(response, channel);
     }
+    
+    void sendTodoInfo(String msg, IChannel channel) {
+        String response = Todo.makeTodo(msg, channel);
+        sendMessage(response, channel);
+    }
+    
     
 }

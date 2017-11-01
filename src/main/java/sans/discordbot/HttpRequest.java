@@ -28,7 +28,7 @@ public class HttpRequest {
     /* Helper Functions */
     
     // Returns the HttpURLConnection from a given URL
-    static HttpURLConnection getHttpURLConnection(String url) throws MalformedURLException, IOException {
+    private static HttpURLConnection getHttpURLConnection(String url) throws MalformedURLException, IOException {
         //try {       
         URL u = new URL(url);
         HttpURLConnection c = (HttpURLConnection) u.openConnection();
@@ -36,12 +36,12 @@ public class HttpRequest {
     }
     
     // Just a wrapper to set the X-Mashape-Key Header of a HttpURLConnection c to key
-    static void setHSKey(HttpURLConnection c, String key) throws ProtocolException {
+    private static void setHSKey(HttpURLConnection c, String key) throws ProtocolException {
         c.setRequestProperty("X-Mashape-Key", key);
     }
     
     // Set standard GET properties/values for an HttpURLConnection
-    static void setGetProperties(HttpURLConnection c) throws ProtocolException {
+    private static void setGetProperties(HttpURLConnection c) throws ProtocolException {
         c.setRequestMethod("GET");
         c.setRequestProperty("Accept", "application/json");
         c.setUseCaches(false);
