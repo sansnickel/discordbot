@@ -1,7 +1,5 @@
 package sans.discordbot;
 
-import java.io.IOException;
-
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.events.IListener;
@@ -13,6 +11,8 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.RequestBuffer;
+
 
 public class InterfaceListener implements IListener<MessageReceivedEvent> { // The event type in IListener<> can be any class which extends Event
     
@@ -28,9 +28,10 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         
     //@Override
     public void handle(MessageReceivedEvent event) { // This is called when the MessageReceivedEvent is dispatched
-
+        
         IMessage message = event.getMessage();
         IChannel channel = message.getChannel();
+        boolean isCommand = true;
         try {
             // Builds (sends) and new message in the channel that the original message was sent with the content of the original message.
             //new MessageBuilder(this.client).withChannel(channel).withContent(message.getContent()).build();
@@ -49,41 +50,19 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
             
             else if (msg.startsWith("!todo")) {
                 sendTodoInfo(msg, channel);
-                
-                /*
-                String response = Todo.todo(msg);
-                if (response.startsWith("new"))            
-                    new MessageBuilder(this.client).withChannel(channel).withContent(response.substring(4)).build();
-                
-                else if (response.startsWith("add")) {
-                    String newstring = channel.getPinnedMessages().get(0).edit(channel.getPinnedMessages().get(0).getContent() + "\n" + response.substring(4)).getContent();
-                                      
-                    new MessageBuilder(this.client).withChannel(channel).withContent(channel.getPinnedMessages().get(0).getContent()).build();
-                }
-                else if (response.startsWith("del")) {
-                    String todos[] = channel.getPinnedMessages().get(0).getContent().split("\n");
-                    String ntodos[] = new String[todos.length - 1];
-                    for (int i = 0; i < todos.length; i++) {
-                        if (i < Integer.parseInt(response.substring(4)))
-                            ntodos[i] = todos[i]; 
-                        else
-                            ntodos[i] = todos[i+1];
-                    }
-                    StringBuilder str = new StringBuilder();
-                    for (String tds : ntodos)
-                        str.append(tds + "\n");
-                    
-                    new MessageBuilder(this.client).withChannel(channel).withContent(channel.getPinnedMessages().get(0).edit(str.toString()).getContent()).build();
-                }
-                else 
-                    new MessageBuilder(this.client).withChannel(channel).withContent(channel.getPinnedMessages().get(0).getContent()).build();
-                */
             }
             
             else if (msg.startsWith("!test")) {
                 new MessageBuilder(this.client).withChannel(channel).withContent("1\n2\n3\n4").build();
-                //new MessageBuilder(this.client).withChannel(channel).withContent(msg.substring(6)).build();
             }
+            else {
+                isCommand = false;
+            }
+            if (isCommand) {
+                message.delete();
+            }
+            
+            
         } catch (RateLimitException e) { // RateLimitException thrown. The bot is sending messages too quickly!
             System.err.print("Sending messages too quickly!");
             e.printStackTrace();
@@ -98,7 +77,9 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
     }
     
     void sendMessage(String msg, IChannel channel) {
-        new MessageBuilder(client).withChannel(channel).withContent(msg).build();
+        RequestBuffer.request(() -> {
+            new MessageBuilder(client).withChannel(channel).withContent(msg).build();
+        });
     }
     
     void sendCardInfo(String msg, IChannel channel, String key) {

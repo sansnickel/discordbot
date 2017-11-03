@@ -1,8 +1,4 @@
 package sans.discordbot;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 
@@ -36,6 +32,8 @@ public class Todo {
             IMessage pin = channel.getPinnedMessages().get(0);
             if (request.startsWith("ne")) {
                 response = "filer";
+            } else if (request.isEmpty()) {
+                response = displayList(pin);
             } else {
                 try {
                     Todo td = new Todo(request);

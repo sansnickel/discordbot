@@ -16,12 +16,17 @@ public class JsonParser {
     public static String parseJsonHS(InputStream is) throws IOException {
         JSONArray arr = getJsonArrFromIS(is);
         StringBuilder response = new StringBuilder();
+        
         for (int i = 0; i < arr.length(); i++) {
             JSONObject obj = arr.getJSONObject(i);
-            String cardSet = obj.getString("cardSet");
-            String img = obj.getString("img");
-            response.append(img + "\nSet: " + cardSet + "&&");
+            String name = obj.isNull("name") ? "" : obj.getString("name");
+            String cardSet = obj.isNull("cardSet") ? "" : obj.getString("cardSet");
+            String flavor = obj.isNull("flavor") ? "" : obj.getString("flavor");
+            String img = obj.isNull("img") ? "" : obj.getString("img");
+  
+            response.append(img + "\n" + "```\n" + name + "\n" + cardSet + "\n" + flavor + "```&&");
         }
+        
         return response.toString();  
     }
         
@@ -29,6 +34,7 @@ public class JsonParser {
         JSONObject obj = getJsonObjFromIS(is);
         JSONArray arr = obj.getJSONObject("data").getJSONObject(str).getJSONArray("spells");
         StringBuilder response = new StringBuilder();
+        response.append("```"+ str + " Cooldowns\n");
         for(int i = 0; i < arr.length(); i++) {
             String cd = arr.getJSONObject(i).getString("cooldownBurn");   
             switch (i) {
@@ -40,6 +46,7 @@ public class JsonParser {
             }
             response.append(cd + "\n");
         }
+        response.append("```");
         return response.toString();  
     }
     
