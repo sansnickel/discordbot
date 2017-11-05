@@ -13,6 +13,23 @@ import org.json.JSONObject;
 
 public class JsonParser {
 
+    public static String parseJsonWolf(InputStream is) throws IOException {
+        JSONObject obj = getJsonObjFromIS(is);
+        //System.out.println(obj);
+        JSONArray pods = obj.getJSONObject("queryresult").getJSONArray("pods");
+        
+        StringBuilder response = new StringBuilder();
+        
+        for (int i = 0; i < pods.length(); i++) {
+            JSONArray subpods = pods.getJSONObject(i).getJSONArray("subpods");
+            for (int j = 0; j < subpods.length(); j++) {
+                String src = subpods.getJSONObject(j).getJSONObject("img").getString("src");
+                response.append(src + "&&");
+            }
+        }
+        return response.toString();  
+    }
+    
     public static String parseJsonHS(InputStream is) throws IOException {
         JSONArray arr = getJsonArrFromIS(is);
         StringBuilder response = new StringBuilder();

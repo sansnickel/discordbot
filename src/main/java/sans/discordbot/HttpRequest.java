@@ -28,7 +28,7 @@ public class HttpRequest {
     /* Helper Functions */
     
     // Returns the HttpURLConnection from a given URL
-    private static HttpURLConnection getHttpURLConnection(String url) throws MalformedURLException, IOException {
+    public static HttpURLConnection getHttpURLConnection(String url) throws MalformedURLException, IOException {
         //try {       
         URL u = new URL(url);
         HttpURLConnection c = (HttpURLConnection) u.openConnection();

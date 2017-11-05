@@ -31,14 +31,17 @@ public class Todo {
         try {
             IMessage pin = channel.getPinnedMessages().get(0);
             if (request.startsWith("ne")) {
-                response = "filer";
+                pin.edit(removeTodo(Integer.parseInt(request.substring(2).trim()), pin));
+                IMessage newpin = channel.getPinnedMessages().get(0);
+                response = displayList(newpin);
             } else if (request.isEmpty()) {
                 response = displayList(pin);
             } else {
                 try {
                     Todo td = new Todo(request);
-                    IMessage newmsg = pin.edit(td.insertTodo(pin));
-                    return displayList(newmsg);
+                    pin.edit(td.insertTodo(pin));
+                    IMessage newpin = channel.getPinnedMessages().get(0);
+                    return displayList(newpin);
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
                     return "Todo not in the right format.";
@@ -104,29 +107,20 @@ public class Todo {
             if (added == false) {
                 newpin.append("\n" + this.toString());
             }
-            System.out.println(newpin.toString());
+            //System.out.println(newpin.toString());
             return newpin.toString();
         }
     }
     
-  /*  
-    public static String todo(String request){
-        String req = request.substring(5).toLowerCase();
-        String response;
-        if (req.startsWith(" setup")) {
-            response = "new To-do's\n";
+    public static String removeTodo(int index, IMessage pin) {
+        String tds[] = pin.getContent().split("\n");
+        StringBuilder newpin = new StringBuilder();
+        for (int i = 0; i < tds.length; i++) {
+            if (i != index) {
+                newpin.append(tds[i] + "\n");
+            }
         }
-        else if (req.startsWith("ne ")) {
-            response = "del" + req;
-   
-        } else {
-            response = "add" + req;
-        }
-        return response;
-        
- 
+        return newpin.toString();
     }
-    
-    */
-    
+
 }
