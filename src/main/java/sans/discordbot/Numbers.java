@@ -11,30 +11,29 @@ public class Numbers {
         String url = "http://numbersapi.com/";
         String response = null;
         try {
+            InputStream is = null;
             if (msg.startsWith("!year")) {
-                InputStream is = HttpRequest.sendGet(url + msg.substring(6) + "/year");
-                response = inputStreamToString(is);
+                is = HttpRequest.sendGet(url + msg.substring(6) + "/year");
             } else if (msg.startsWith("!date")) {
-                InputStream is = HttpRequest.sendGet(url + msg.substring(6) + "/date");
-                response = inputStreamToString(is);
+                is = HttpRequest.sendGet(url + msg.substring(6) + "/date");
             } else if (msg.startsWith("!mathfact")) {
-                InputStream is = HttpRequest.sendGet(url + msg.substring(10) + "/math");
-                response = inputStreamToString(is);
+                is = HttpRequest.sendGet(url + msg.substring(10) + "/math");
             } else if (msg.startsWith("!trivia")) {
-                InputStream is = HttpRequest.sendGet(url + msg.substring(8) + "/trivia");
-                response = inputStreamToString(is);
+                is = HttpRequest.sendGet(url + msg.substring(8) + "/trivia");  
             }
+            response = inputStreamToString(is);
+            return JsonParser.formatStringToBlock(response, "ml");
         } catch (IOException e) {
             e.printStackTrace();
             return "Cannot connect or invalid input.";
         }
-        return "```" + response + "```";
+        
     }
     
       
     public static String inputStreamToString(InputStream is) throws IOException {
         StringBuilder response = new StringBuilder();
-        BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
+        BufferedReader buffer = new BufferedReader(new InputStreamReader(is, "UTF-8"));
         while (buffer.ready()) {
             response.append(buffer.readLine() + "\n");
         }

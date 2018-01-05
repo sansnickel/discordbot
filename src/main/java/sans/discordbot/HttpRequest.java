@@ -25,6 +25,13 @@ public class HttpRequest {
         return c.getInputStream();
     }
     
+    public static InputStream sendGetOxf(String url, String appid, String key) throws MalformedURLException, IOException {
+        HttpURLConnection c = getHttpURLConnection(url);
+        setGetProperties(c);
+        setOxfKey(c, appid, key);
+        return c.getInputStream();
+    }
+    
     /* Helper Functions */
     
     // Returns the HttpURLConnection from a given URL
@@ -38,6 +45,11 @@ public class HttpRequest {
     // Just a wrapper to set the X-Mashape-Key Header of a HttpURLConnection c to key
     private static void setHSKey(HttpURLConnection c, String key) throws ProtocolException {
         c.setRequestProperty("X-Mashape-Key", key);
+    }
+    
+    private static void setOxfKey(HttpURLConnection c, String id, String key) {
+        c.setRequestProperty("app_id", id);
+        c.setRequestProperty("app_key", key);
     }
     
     // Set standard GET properties/values for an HttpURLConnection

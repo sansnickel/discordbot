@@ -18,13 +18,17 @@ import sx.blah.discord.util.RequestBuffer;
 public class InterfaceListener implements IListener<MessageReceivedEvent> { // The event type in IListener<> can be any class which extends Event
     
     public IDiscordClient client;
-    private final String key1;
-    private final String key2;
+    private final String key1; // x-mashape    
+    private final String key2; // wolfram
+    private final String id1;  // oxford
+    private final String key3; // oxford
     
-    public InterfaceListener(IDiscordClient discordClient, String key1, String key2) {
+    public InterfaceListener(IDiscordClient discordClient, String key1, String key2, String id1, String key3) {
         this.client = discordClient;
         this.key1 = key1;
         this.key2 = key2;
+        this.id1 = id1;
+        this.key3 = key3;
         EventDispatcher dispatcher = discordClient.getDispatcher(); // Gets the EventDispatcher instance for this client instance
         dispatcher.registerListener(this); // Registers the IListener example class from above
     }
@@ -34,7 +38,7 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         
         IMessage message = event.getMessage();
         IChannel channel = message.getChannel();
-        boolean delete = true;
+        boolean delete = false;
         try {
             // Builds (sends) and new message in the channel that the original message was sent with the content of the original message.
             //new MessageBuilder(this.client).withChannel(channel).withContent(message.getContent()).build();
@@ -45,9 +49,8 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
             else if (msg.startsWith("!cds")) {
                 sendCDInfo(msg, channel);
             }
-            
             else if (msg.startsWith("!def")) {
-                //def();
+                sendDefInfo(msg, channel);
             }
             
             else if (msg.startsWith("!todo")) {
@@ -88,7 +91,10 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
     void sendMessage(String msg, IChannel channel) {
         if (msg != "") {
             RequestBuffer.request(() -> {
-                new MessageBuilder(client).withChannel(channel).withContent(msg).build();
+                IMessage sentmsg = new MessageBuilder(client).withChannel(channel).withContent(msg).build();
+                if (sentmsg.getContent().startsWith("=wolf")) {
+                    sentmsg.delete();
+                }
             });
         }
     }
@@ -121,6 +127,10 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         String response = Numbers.getInfo(msg);
         sendMessage(response, channel);
     }
+    void sendDefInfo(String msg, IChannel channel) {
+        String response = Oxford.getDef(msg, this.id1, this.key3);
+        sendMessage(response, channel);
+    }
     void sendWolfInfo(String msg, IChannel channel) {
        /*String response = Wolfram.getWolfInfo(msg, this.key2);
        String urls[] = response.split("&&");
@@ -129,6 +139,12 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
            sendMessage(eo, channel);
        }*/
        String response = Wolfram.getSimpleInfo(msg, this.key2);
-       sendMessage(response, channel);
+       if (response.startsWith("=wolf")) {
+           sendMessage(response, channel);
+       }
+       else {
+           sendMessage(JsonParser.formatStringToBlock(response, "ml"), channel);    
+       }
+       
     }
 }

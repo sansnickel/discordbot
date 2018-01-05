@@ -10,7 +10,7 @@ public class Main
         System.out.println( "Hello World!" );
         IDiscordClient client = Client.createClient(args[0], true); // Gets the client object (from the first example)
         @SuppressWarnings("unused")
-        InterfaceListener il = new InterfaceListener(client, args[1], args[2]);
+        InterfaceListener il = new InterfaceListener(client, args[1], args[2], args[3], args[4]);
 
     }
 }

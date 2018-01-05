@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
+import java.net.URLEncoder;
 import java.util.stream.Collectors;
 
 
@@ -27,7 +27,22 @@ public class JsonParser {
                 response.append(src + "&&");
             }
         }
-        return response.toString();  
+        return formatStringToBlock(response.toString(), "ml");  
+    }
+    
+    public static String parseJsonOxf(InputStream is) throws IOException {
+        JSONObject obj = getJsonObjFromIS(is);
+        JSONArray arr = obj.getJSONArray("results").getJSONObject(0).getJSONArray("lexicalEntries");
+        StringBuilder response = new StringBuilder();
+        response.append(obj.getJSONArray("results").getJSONObject(0).getString("id")+"\n");
+        for (int i = 0; i < arr.length(); i++) {
+            JSONArray senses = arr.getJSONObject(i).getJSONArray("entries").getJSONObject(0).getJSONArray("senses");
+            response.append(arr.getJSONObject(i).getString("lexicalCategory") + "\n");
+            for (int j = 0; j < senses.length(); j++) {
+                response.append((j+1) + ". " + senses.getJSONObject(j).getJSONArray("definitions").getString(0) + "\n");
+            }
+        }
+        return formatStringToBlock(response.toString(), "ml");
     }
     
     public static String parseJsonHS(InputStream is) throws IOException {
@@ -41,7 +56,7 @@ public class JsonParser {
             String flavor = obj.isNull("flavor") ? "" : obj.getString("flavor");
             String img = obj.isNull("img") ? "" : obj.getString("img");
   
-            response.append(img + "\n" + "```\n" + name + "\n" + cardSet + "\n" + flavor + "```&&");
+            response.append(img + "\n" + formatStringToBlock(name + "\n" + cardSet + "\n" + flavor, "ml") + "&&");
         }
         
         return response.toString();  
@@ -51,7 +66,7 @@ public class JsonParser {
         JSONObject obj = getJsonObjFromIS(is);
         JSONArray arr = obj.getJSONObject("data").getJSONObject(str).getJSONArray("spells");
         StringBuilder response = new StringBuilder();
-        response.append("```"+ str + " Cooldowns\n");
+        response.append(str + " Cooldowns\n");
         for(int i = 0; i < arr.length(); i++) {
             String cd = arr.getJSONObject(i).getString("cooldownBurn");   
             switch (i) {
@@ -63,21 +78,25 @@ public class JsonParser {
             }
             response.append(cd + "\n");
         }
-        response.append("```");
-        return response.toString();  
+        return formatStringToBlock(response.toString(), "ml"); 
     }
     
     static JSONArray getJsonArrFromIS (InputStream is) throws IOException {
-        BufferedReader buffer = new BufferedReader (new InputStreamReader(is));
+        BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));
         String jsonTxt = buffer.lines().collect(Collectors.joining("\n"));
         buffer.close();
         return new JSONArray(jsonTxt);
     }
     
     static JSONObject getJsonObjFromIS (InputStream is) throws IOException {
-        BufferedReader buffer = new BufferedReader (new InputStreamReader(is));
+        BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));
         String jsonTxt = buffer.lines().collect(Collectors.joining("\n"));
         buffer.close();
         return new JSONObject(jsonTxt);
     }
-}
+    
+    static String formatStringToBlock(String msg, String lang) {
+        return "```" + lang + "\n" + msg + "```";
+    }
+    
+ }

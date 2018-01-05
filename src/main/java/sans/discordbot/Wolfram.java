@@ -36,12 +36,12 @@ public class Wolfram {
             String url = URL2 + key + "&i=" + URLEncoder.encode(msg.substring(6), "UTF-8");
             InputStream is = HttpRequest.sendGet(url);
             StringBuilder s = new StringBuilder();
-            BufferedReader buffer = new BufferedReader (new InputStreamReader(is));
+            BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));
             while (buffer.ready()) {
                 s.append(buffer.readLine());
             }
             buffer.close();
-            return "```Query: " + msg.substring(6) + "\nResult: " + s.toString() + "```";
+            return "Query: " + msg.substring(6) + "\nResult: " + s.toString();
         } catch (IOException e) {
             return "=wolf " + msg.substring(6);
         }

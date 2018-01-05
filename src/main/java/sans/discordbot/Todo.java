@@ -1,6 +1,7 @@
 package sans.discordbot;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.util.RequestBuffer;
 
 public class Todo {
 
@@ -22,6 +23,7 @@ public class Todo {
     }
     
     public static String makeTodo(String msg, IChannel channel) {
+        
         String request = msg.substring(5); // gets rid of the !todo
         String response;
 
@@ -29,18 +31,29 @@ public class Todo {
             return "Pin this message.";
         }
         try {
-            IMessage pin = channel.getPinnedMessages().get(0);
+            /*IMessage pin = RequestBuffer.request(() -> {
+                return channel.getPinnedMessages().get(0);
+            }).get();*/
+            IMessage pin = getFirstPinnedMessage(channel);
             if (request.startsWith("ne")) {
                 pin.edit(removeTodo(Integer.parseInt(request.substring(2).trim()), pin));
-                IMessage newpin = channel.getPinnedMessages().get(0);
+                /*
+                IMessage newpin = RequestBuffer.request(() -> {
+                    return channel.getPinnedMessages().get(0);
+                }).get();*/
+                IMessage newpin = getFirstPinnedMessage(channel);
                 response = displayList(newpin);
+          
             } else if (request.isEmpty()) {
                 response = displayList(pin);
             } else {
                 try {
                     Todo td = new Todo(request);
                     pin.edit(td.insertTodo(pin));
-                    IMessage newpin = channel.getPinnedMessages().get(0);
+                    /*IMessage newpin = RequestBuffer.request(() -> {
+                        return channel.getPinnedMessages().get(0);
+                    }).get();*/
+                    IMessage newpin = getFirstPinnedMessage(channel);
                     return displayList(newpin);
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
@@ -51,7 +64,7 @@ public class Todo {
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return "Use !todo setup and pin the message first.";
-        }
+        } 
     }
     
     @Override
@@ -121,6 +134,13 @@ public class Todo {
             }
         }
         return newpin.toString();
+    }
+    
+    static IMessage getFirstPinnedMessage(IChannel channel) {
+        return RequestBuffer.request(() -> {
+            return channel.getPinnedMessages().get(0);
+        }).get();
+
     }
 
 }
