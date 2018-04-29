@@ -19,7 +19,7 @@ public class Wolfram {
     
     public static String getWolfInfo(String msg, String key) {
         try {
-            String url = URL + key + "&input=" + URLEncoder.encode(msg.substring(6), "UTF-8") + "&format=image&output=JSON";
+            String url = URL + key + "&input=" + URLEncoder.encode(msg, "UTF-8") + "&format=image&output=JSON";
             //System.out.println(url);
             InputStream is = HttpRequest.sendGet(url);
             String response = JsonParser.parseJsonWolf(is);
@@ -33,7 +33,7 @@ public class Wolfram {
     
     public static String getSimpleInfo(String msg, String key) {
         try {
-            String url = URL2 + key + "&i=" + URLEncoder.encode(msg.substring(6), "UTF-8");
+            String url = URL2 + key + "&i=" + URLEncoder.encode(msg, "UTF-8");
             InputStream is = HttpRequest.sendGet(url);
             StringBuilder s = new StringBuilder();
             BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));

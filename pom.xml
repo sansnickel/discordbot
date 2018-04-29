@@ -37,10 +37,15 @@
 		<dependency>
 			<groupId>com.github.austinv11</groupId>
 			<artifactId>Discord4J</artifactId>
-			<version>2.9.2</version>
+			<version>2.10.1</version>
 			<classifier>shaded</classifier>
 		</dependency>
 
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>25.0-jre</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

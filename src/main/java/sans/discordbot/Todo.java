@@ -1,4 +1,6 @@
 package sans.discordbot;
+import java.util.regex.Pattern;
+
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.RequestBuffer;
@@ -7,26 +9,41 @@ public class Todo {
 
     private final String course;
     private final String item;
+    private final String location;
     private final Date date;
     
     
-    public Todo (String course, String item, Date date){
+    public Todo (String course, String item, String location, Date date){
         this.course = course.toUpperCase();
         this.item = item;
-        this.date = date;
+        this.location = location;
+        this.date = date;        
     }
     
-    public Todo (String msg) throws IndexOutOfBoundsException { // CPEN400A | Midterm 2 | 11/23/2017 23:00
+    public Todo (String msg) throws IndexOutOfBoundsException { // CPEN400A | Midterm 2 | OSBO A | 11/23/2017 23:00
+        /*
         this.course =          msg.substring(0                     , msg.indexOf    ("|")).trim().toUpperCase();
         this.item   =          msg.substring(msg.indexOf    ("|")+1, msg.lastIndexOf("|")).trim();
         this.date   = new Date(msg.substring(msg.lastIndexOf("|")+1, msg.length()        ).trim());
+        */
+        String[] fields = msg.split(Pattern.quote("|")); 
+        //System.out.println(fields.length);
+        //System.out.println(fields[3].trim());
+        
+        this.course = fields[0].trim().toUpperCase();
+        this.item = fields[1].trim();
+        this.location = fields[2].trim();
+        this.date = new Date(fields[3].trim());
+        
+        
     }
+    
     
     public static String makeTodo(String msg, IChannel channel) {
         
-        String request = msg.substring(5); // gets rid of the !todo
+        String request = msg; 
         String response;
-
+        
         if (request.startsWith(" setup")) {
             return "Pin this message.";
         }
@@ -35,8 +52,8 @@ public class Todo {
                 return channel.getPinnedMessages().get(0);
             }).get();*/
             IMessage pin = getFirstPinnedMessage(channel);
-            if (request.startsWith("ne")) {
-                pin.edit(removeTodo(Integer.parseInt(request.substring(2).trim()), pin));
+            if (request.startsWith("del")) {
+                pin.edit(removeTodo(Integer.parseInt(request.substring(3).trim()), pin));
                 /*
                 IMessage newpin = RequestBuffer.request(() -> {
                     return channel.getPinnedMessages().get(0);
@@ -46,6 +63,22 @@ public class Todo {
           
             } else if (request.isEmpty()) {
                 response = displayList(pin);
+            /*} else if (request.startsWith("s ")) {
+                try {
+                    String[] todos = request.split("\\r?\\n");
+                    System.out.println(todos.length);
+                    for (int i = 1; i < todos.length; i++) {
+                        System.out.println(todos[i]);
+                        Todo td = new Todo(todos[i]);
+                        pin.edit(td.insertTodo(pin));
+                        pin = getFirstPinnedMessage(channel);
+                    }
+                    IMessage newpin = getFirstPinnedMessage(channel);
+                    return displayList(newpin);
+                } catch (IndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                    return "Todo not in the right format.";
+                }*/
             } else {
                 try {
                     Todo td = new Todo(request);
@@ -69,12 +102,22 @@ public class Todo {
     
     @Override
     public String toString() {
-        return this.getCourse() + " | " + this.getItem() + " | " + this.getDate().toString();
+        return this.getCourse() + " | " + this.getItem() + " | " + this.getLocation() + " | " + this.getDate().toString();
     }
     
     public String toDisplayString() {
         
-        return "[" + this.getCourse() + "] " + this.getItem() + " - " + this.getDate().toDisplayString();
+        return "[" + this.getCourse() + "] " + this.getItem() + numSpaces(42 - this.getItem().length() - this.getLocation().length()) + this.getLocation() + "  " + this.getDate().toDisplayString();
+    }
+    
+    public String numSpaces(int n) {
+        StringBuilder s = new StringBuilder();
+        int i = 0;
+        while (i<n) {
+            s.append(' ');
+            i++;
+        }
+        return s.toString();
     }
     
     public String getCourse() {
@@ -82,6 +125,10 @@ public class Todo {
     }
     public String getItem() {
         return this.item;
+    }
+    
+    public String getLocation() {
+        return this.location;
     }
     
     public Date getDate() {
@@ -93,7 +140,10 @@ public class Todo {
         StringBuilder newmsg = new StringBuilder();
         newmsg.append("```");
         for (int i = 1; i < tds.length; i++) {
-            newmsg.append(i + ". " + new Todo(tds[i]).toDisplayString() + "\n");
+            if (i < 10)
+                newmsg.append(i + ". " + new Todo(tds[i]).toDisplayString() + "\n");
+            else 
+                newmsg.append(i + "." + new Todo(tds[i]).toDisplayString() + "\n");
         }
         newmsg.append("```");
         return newmsg.toString();
@@ -126,7 +176,13 @@ public class Todo {
     }
     
     public static String removeTodo(int index, IMessage pin) {
+        
+
         String tds[] = pin.getContent().split("\n");
+        if (index >= tds.length) {
+            return pin.getContent();
+        }
+
         StringBuilder newpin = new StringBuilder();
         for (int i = 0; i < tds.length; i++) {
             if (i != index) {
