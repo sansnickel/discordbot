@@ -1,10 +1,14 @@
 package sans.discordbot;
 
+import java.io.IOException;
+
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionAddEvent;
+import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
@@ -81,7 +85,7 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
                     sendNumInfo(type, arg, channel);
                     break;
                 case "wolf":
-                    sendWolfInfo(arg, channel);
+                    sendWolfText(arg, channel);
                     break;
                 case "livegame":
                     sendGameInfo(arg, channel);
@@ -110,7 +114,7 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         }
         
     }
-    
+
     void sendMessage(String msg, IChannel channel) {
         
         if (msg != "") {
@@ -124,12 +128,13 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         
     }
     
-    void sendMessage(EmbedObject e, IChannel channel) {
-        if (e != null) {
-            RequestBuffer.request(() -> {
-                new MessageBuilder(client).withChannel(channel).withContent("").withEmbed(e).build();
-            });
-        }
+    IMessage sendMessage(EmbedObject e, IChannel channel) {
+
+        IMessage sentmsg = RequestBuffer.request(() -> {
+            return new MessageBuilder(client).withChannel(channel).withEmbed(e).build();
+        }).get();
+
+        return sentmsg;
     }
     
     void sendCardInfo(String msg, IChannel channel) {
@@ -165,19 +170,17 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         sendMessage(response, channel);
     }
     
-    void sendWolfInfo(String msg, IChannel channel) {
-       /*String response = Wolfram.getWolfInfo(msg, this.key2);
-       String urls[] = response.split("&&");
-       for (String url : urls) {
-           EmbedObject eo = new EmbedBuilder().withImage(url).build();
-           sendMessage(eo, channel);
-       }*/
-       String response = Wolfram.getSimpleInfo(msg, this.key2);
-       if (response.startsWith("=wolf")) {
-           sendMessage(response, channel);
-       } else {
-           sendMessage(JsonParser.toOutputBlock(response, "ml"), channel);    
-       }
+    void sendWolfText(String msg, IChannel channel) {
+ 
+       Wolfram output = Wolfram.getText(msg, this.key2);
+       EmbedBuilder b = new EmbedBuilder();
+       
+       b.appendField("Query", output.getQuery(), false);
+       b.appendField("Response", output.getResponse(), false);       
+        
+       IMessage m = sendMessage(b.build(), channel);
+       ReactionEmoji reaction = ReactionEmoji.of("🤔");
+       m.addReaction(reaction);
        
     }
     
@@ -185,4 +188,9 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         String response = League.getLiveGameInfo(msg, this.key4);
         sendMessage(response, channel);
     }
+    
+    
+    
+    
+    
 }

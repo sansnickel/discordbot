@@ -13,9 +13,42 @@ import sx.blah.discord.util.EmbedBuilder;
 
 public class Wolfram {
 
-    private final static String URL = "http://api.wolframalpha.com/v2/query?appid=";
-    private final static String URL2 = "http://api.wolframalpha.com/v1/result?appid=";
-    private final static int TIMEOUT = 60;
+    private final static String LINK = "http://wolframalpha.com/input/?=";
+    private final static String URLSHORT = "http://api.wolframalpha.com/v1/result?appid=";
+    private final static String URLSIMPLE = "http://api.wolframalpha.com/v1/simple?appid=";
+    
+    private final String query;
+    private final String encodedquery;
+    private final String response;
+    private final String link;
+    
+    /** Holds a user query, Wolfram Alpha's Short Answer response, and other related information. */ 
+    
+    public Wolfram (String query, String encodedquery, String response, String link) {
+        this.query = query;
+        this.encodedquery = encodedquery;
+        this.response = response;
+        this.link = link;
+    }
+ 
+    public String getQuery () {
+        return this.query;
+    }
+    
+    public String getEncodedQuery() {
+        return this.encodedquery;
+    }
+        
+    public String getResponse () {
+        return this.response;
+    }
+    
+    public String getLink () {
+        return this.link;
+    }
+   
+    
+    /*
     
     public static String getWolfInfo(String msg, String key) {
         try {
@@ -29,21 +62,40 @@ public class Wolfram {
             e.printStackTrace();
             return "Cannot interpret query.";
         }
+    }*/
+    
+    public static InputStream getImage(String msg, String key) throws IOException { 
+        
+        String url = URLSIMPLE + key + "&i=" + URLEncoder.encode(msg, "UTF-8");
+        InputStream is = HttpRequest.sendGet(url);
+        return is;
+        
     }
     
-    public static String getSimpleInfo(String msg, String key) {
+    
+    
+    public static Wolfram getText(String query, String key) {
+       
         try {
-            String url = URL2 + key + "&i=" + URLEncoder.encode(msg, "UTF-8");
+            
+            String encodedquery = URLEncoder.encode(query, "UTF-8");
+            String url = URLSHORT + key + "&i=" + encodedquery;
+            String link = LINK + encodedquery;
+           
             InputStream is = HttpRequest.sendGet(url);
-            StringBuilder s = new StringBuilder();
+            StringBuilder response = new StringBuilder();
             BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));
+            
             while (buffer.ready()) {
-                s.append(buffer.readLine());
+                response.append(buffer.readLine());
             }
             buffer.close();
-            return "Query: " + msg.substring(6) + "\nResult: " + s.toString();
+            
+            return new Wolfram (query, encodedquery, response.toString(), link);    
+      
         } catch (IOException e) {
-            return "=wolf " + msg.substring(6);
+            e.printStackTrace();
+            return new Wolfram (query, null, "Could not interpret query.", null );
         }
     }
     

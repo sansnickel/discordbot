@@ -10,7 +10,7 @@ import com.google.common.util.concurrent.RateLimiter;
 
 public class HttpRequest {
     
-    private static final RateLimiter throttle = RateLimiter.create(5.0);
+    private static final RateLimiter throttle = RateLimiter.create(5);
     
     /** Sends a GET Request to the given URL and returns the InputStream received */
     public static InputStream sendGet(String url) throws IOException {
@@ -43,6 +43,7 @@ public class HttpRequest {
     public static InputStream sendGetLoL(String url, String key) throws IOException {
         
         throttle.acquire(6);
+        System.out.println("sending");
         
         HttpURLConnection c = getHttpURLConnection(url);
         setGetProperties(c);
