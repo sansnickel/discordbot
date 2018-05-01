@@ -1,9 +1,12 @@
-package sans.discordbot;
+package sans.discordbot.league;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+
+import sans.discordbot.HttpRequest;
+import sans.discordbot.JsonParser;
 
 
 

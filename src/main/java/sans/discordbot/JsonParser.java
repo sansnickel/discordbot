@@ -12,25 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import sans.discordbot.hearthstone.Card;
+import sans.discordbot.hearthstone.Hearthstone;
+import sans.discordbot.league.League;
+
 /** A collection of methods to extract desired information from InputStreams carrying JSON Objects. */
 public class JsonParser {
 
-    public static String parseJsonWolf(InputStream is) throws IOException, JSONException {
-        
-        JSONObject obj = getJsonObj(is);
-        JSONArray pods = obj.getJSONObject("queryresult").getJSONArray("pods");
-        
-        StringBuilder response = new StringBuilder();
-        
-        for (int i = 0; i < pods.length(); i++) {
-            JSONArray subpods = pods.getJSONObject(i).getJSONArray("subpods");
-            for (int j = 0; j < subpods.length(); j++) {
-                String src = subpods.getJSONObject(j).getJSONObject("img").getString("src");
-                response.append(src + "&&");
-            }
-        }
-        return toOutputBlock(response.toString(), "ml");  
-    }
     
     public static String parseJsonOxf(InputStream is) throws IOException, JSONException {
         
@@ -53,24 +41,18 @@ public class JsonParser {
         return toOutputBlock(response.toString(), "ml");
     }
     
-    public static String parseJsonHS(InputStream is) throws IOException, JSONException {
+    public static Card parseJsonCard(InputStream is) throws IOException, JSONException {
        
-        JSONArray arr = getJsonArr(is);
-        StringBuilder response = new StringBuilder();
+        // assumption that no collectible card has the same name
+        JSONObject card = getJsonArr(is).getJSONObject(0);
         
-        for (int i = 0; i < arr.length(); i++) {
-            
-            JSONObject obj = arr.getJSONObject(i);
-            String name = obj.isNull("name") ? "" : obj.getString("name");
-            String cardSet = obj.isNull("cardSet") ? "" : obj.getString("cardSet");
-            String flavor = obj.isNull("flavor") ? "" : obj.getString("flavor");
-            String img = obj.isNull("img") ? "" : obj.getString("img");
+        String name = card.getString("name");
+        String cardset = card.getString("cardSet");
+        String flavor = card.getString("flavor");
+        String img = card.getString("img");
+        String artist = card.getString("artist");
 
-            response.append(img + "\n" + toOutputBlock(name + "\n" + cardSet + "\n" + flavor, "ml") + "&&");
-            
-        }
-        
-        return response.toString();  
+        return new Card(name, cardset, flavor, img, artist);
     }
         
     public static String parseJsonCds(InputStream is, String str) throws IOException, JSONException {
@@ -95,7 +77,7 @@ public class JsonParser {
             
             response.append(cd + "\n");
         }
-        return toOutputBlock(response.toString(), "ml"); 
+        return toOutputBlock(response.toString(), "python"); 
     }
     
     public static String parseJsonLiveGame(InputStream is, String key) throws IOException, JSONException {

@@ -3,6 +3,7 @@ package sans.discordbot;
 import java.io.IOException;
 import java.io.InputStream;
 
+import sans.discordbot.wolfram.Wolfram;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.events.IListener;

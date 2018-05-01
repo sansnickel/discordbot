@@ -1,4 +1,4 @@
-package sans.discordbot;
+package sans.discordbot.todo;
 import java.util.regex.Pattern;
 
 import sx.blah.discord.handle.obj.IChannel;

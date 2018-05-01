@@ -1,9 +1,12 @@
-package sans.discordbot;
+package sans.discordbot.oxford;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.json.JSONException;
+
+import sans.discordbot.HttpRequest;
+import sans.discordbot.JsonParser;
 
 public class Oxford {
 

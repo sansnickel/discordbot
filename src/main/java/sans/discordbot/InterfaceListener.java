@@ -2,6 +2,16 @@ package sans.discordbot;
 
 import java.io.IOException;
 
+import org.json.JSONException;
+
+import sans.discordbot.hearthstone.Card;
+import sans.discordbot.hearthstone.Hearthstone;
+import sans.discordbot.league.League;
+import sans.discordbot.numbers.Numbers;
+import sans.discordbot.oxford.Oxford;
+import sans.discordbot.todo.Todo;
+import sans.discordbot.wolfram.ShortAnswer;
+import sans.discordbot.wolfram.Wolfram;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.events.IListener;
@@ -57,42 +67,44 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
             // past here then the message was intended for the bot
             // queries are in the form ![type] [arg]
             
-            String type = msg.substring(1, msg.indexOf(" "));
             
-            String arg = " "; 
+            String type = msg.substring(1);
+            String arg = ""; 
             if (msg.indexOf(" ") != -1) { 
+                type = msg.substring(1, msg.indexOf(" "));
                 arg = msg.substring(msg.indexOf(" ")+1, msg.length());   
             }
             
             
             switch (type) {
                 case "card":
-                    sendCardInfo(arg, channel);
-                    break;
+                    sendCardInfo(arg, channel); break;
+                    
                 case "cds":
-                    sendCdInfo(arg, channel);
-                    break;
+                    sendCdInfo(arg, channel); break;
+                 
                 case "def":
-                    sendDefInfo(arg, channel);
-                    break;
+                    sendDefInfo(arg, channel); break;
+                
                 case "todo":
-                    sendTodoInfo(arg, channel);
-                    break;
+                    sendTodoInfo(arg, channel); break;
+                    
                 case "year":
                 case "date":
                 case "math":
                 case "trivia":
-                    sendNumInfo(type, arg, channel);
-                    break;
+                    sendNumInfo(type, arg, channel); break;
+                    
                 case "wolf":
-                    sendWolfText(arg, channel);
-                    break;
+                    sendWolfText(arg, channel); break;
+                    
                 case "livegame":
-                    sendGameInfo(arg, channel);
-                    break;
+                    sendGameInfo(arg, channel); break;
+                    
                 case "test":
-                    sendMessage("1\n2\n3\n4", channel);
-                    break;
+                    sendMessage("1\n2\n3\n4", channel); break;
+                default: break;
+                    
             }     
             
             if (delete) {
@@ -120,9 +132,6 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         if (msg != "") {
             RequestBuffer.request(() -> {
                 IMessage sentmsg = new MessageBuilder(client).withChannel(channel).withContent(msg).build();
-                if (sentmsg.getContent().startsWith("=wolf")) {
-                    sentmsg.delete();
-                }
             });
         }
         
@@ -139,11 +148,25 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
     
     void sendCardInfo(String msg, IChannel channel) {
         
-        String response = Hearthstone.getCardInfo(msg, this.key1);
-        String[] responses = response.split("&&");
-        for (String s : responses) {
-            sendMessage(s, channel);
+        try {
+            Card card = Hearthstone.getCardInfo(msg, this.key1);
+            EmbedBuilder b = new EmbedBuilder();
+            
+            b.withColor(115, 135, 220);
+            b.appendField("Set", card.getCardSet(), true);
+            b.appendField("Artist", card.getArtist(), true); 
+            b.withImage(card.getImgUrl());
+            b.withFooterText(card.getFlavor());
+          
+            sendMessage(b.build(), channel);
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            sendMessage("Card not found.", channel);
         }
+        
+        
+        
     }
     
     void sendCdInfo(String msg, IChannel channel) {
@@ -172,7 +195,7 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
     
     void sendWolfText(String msg, IChannel channel) {
  
-       Wolfram output = Wolfram.getText(msg, this.key2);
+       ShortAnswer output = Wolfram.getText(msg, this.key2);
        EmbedBuilder b = new EmbedBuilder();
        
        b.appendField("Query", output.getQuery(), false);
