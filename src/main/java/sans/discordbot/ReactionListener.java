@@ -48,7 +48,7 @@ public class ReactionListener implements IListener<ReactionAddEvent> {
         
         String query = m.getEmbeds().get(0).getEmbedFields().get(0).getValue();
         
-        if (m.getReactionByUnicode("🤔").getUsers().size() > 1) {  // there seems to be an off by one error with the given getCount() function
+        if (m.getReactionByUnicode("🤔").getUsers().size() == 2) {  // there seems to be an off by one error with the given getCount() function
                                                            // getUsers().size() 
             sendWolfImage(query, channel);
         }

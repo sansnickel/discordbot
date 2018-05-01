@@ -43,8 +43,7 @@ public class HttpRequest {
     public static InputStream sendGetLoL(String url, String key) throws IOException {
         
         throttle.acquire(6);
-        System.out.println("sending");
-        
+
         HttpURLConnection c = getHttpURLConnection(url);
         setGetProperties(c);
         setLoLKey(c, key);

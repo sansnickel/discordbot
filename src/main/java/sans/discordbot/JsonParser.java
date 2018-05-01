@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.json.JSONArray;
@@ -14,7 +16,10 @@ import org.json.JSONObject;
 
 import sans.discordbot.hearthstone.Card;
 import sans.discordbot.hearthstone.Hearthstone;
+import sans.discordbot.league.Game;
 import sans.discordbot.league.League;
+import sans.discordbot.league.Summoner;
+import sans.discordbot.league.SummonerInGame;
 
 /** A collection of methods to extract desired information from InputStreams carrying JSON Objects. */
 public class JsonParser {
@@ -80,63 +85,114 @@ public class JsonParser {
         return toOutputBlock(response.toString(), "python"); 
     }
     
-    public static String parseJsonLiveGame(InputStream is, String key) throws IOException, JSONException {
+    public static Game parseJsonLiveGame(InputStream is, String key) throws IOException, JSONException {
         
-        StringBuilder response = new StringBuilder();
+        List<SummonerInGame> blueteam = new ArrayList<SummonerInGame>();
+        List<SummonerInGame> redteam = new ArrayList<SummonerInGame>();
+        
+              
         JSONObject obj = getJsonObj(is);
         JSONArray participants = obj.getJSONArray("participants");
+        
         for (int i = 0; i < participants.length(); i++) {
           
             JSONObject participant = participants.getJSONObject(i);
-            String name = participant.getString("summonerName");    
-            response.append(name + " ");
-            response.append(League.getRankAndWr(name, key) + " | ");
+                     
+            String name = participant.getString("summonerName");
+            long id = participant.getLong("summonerId");
+            long team = participant.getLong("teamId");
+            long champion = participant.getLong("championId");
             
+            List<Long> runes = new ArrayList<Long>();
+            
+            Summoner s = League.getSummonerInfo(name, key);
+                        
             JSONArray perks = participant.getJSONObject("perks").getJSONArray("perkIds");
-         
             for (int j = 0; j < perks.length(); j++) {
-                response.append(perks.getLong(j) + " ");
+                runes.add(perks.getLong(j)); 
             }
-            response.append("\n");
+                 
+                     
+            SummonerInGame summoner = new SummonerInGame(name, id, s.getLevel(), s.getRank(), s.getWinRate(), team, champion, runes);
+            
+            if (participant.getLong("teamId") == 100) {
+                blueteam.add(summoner);
+            }
+            else {
+                redteam.add(summoner);
+            }    
+ 
         }
         
-        return response.toString();
+        
+        
+        return new Game(blueteam, redteam);
     }
     
-    public static long getSummonerId(InputStream is) throws IOException, JSONException {
+    public static Summoner getSummonerInfo(InputStream is) throws IOException, JSONException {
         
         JSONObject obj = getJsonObj(is);
-        long id = obj.getLong("id");
         
-        return id;
+        String name = obj.getString("name");
+        long id = obj.getLong("id");
+        long level = obj.getLong("summonerLevel");
+              
+        return new Summoner(name, id, level);
     }
     
-    public static String getRankAndWr(InputStream is) throws IOException, JSONException {
-        
-        StringBuilder response = new StringBuilder();
+    public static Summoner getSummonerSoloStats(Summoner s, InputStream is) throws IOException, JSONException {
         
         JSONArray arr = getJsonArr(is);
+        
+        String name = s.getName();
+        long id = s.getId();
+        String rank = "";
+        long level = s.getLevel();
+        int winrate = -1;
+                
         for (int i = 0; i < arr.length(); i++) {
+            
             JSONObject queue =  arr.getJSONObject(i);
             
             if (queue.getString("queueType").equals("RANKED_SOLO_5x5")) {
-                response.append(queue.getString("tier") + " ");
-                response.append(queue.getString("rank") + " ");
+                
+                rank = queue.getString("tier") + " " + queue.getString("rank");
                 
                 int wins = queue.getInt("wins");
                 int losses = queue.getInt("losses");
   
-                int winrate = (int) Math.round(((double) wins/(wins+losses)*100));
+                winrate = (int) Math.round(((double) wins/(wins+losses)*100));
                 
-                response.append(winrate);
                 break;
             }
         }
 
-        return response.toString();
+        return new Summoner(name, id, level, rank, winrate);
 
     }
     
+    public static String getRuneName (long id) {
+        JSONArray runes = new JSONArray(League.RUNES);
+        for (int i = 0; i < runes.length(); i++) {
+            
+            if (runes.getJSONObject(i).getInt("id") == (int) id) {
+                return runes.getJSONObject(i).getString("name");
+            }
+        }
+        return "";
+    }
+    
+    public static String getChampionName (long id) {
+        JSONObject champions = new JSONObject(League.CHAMPIONS).getJSONObject("data");
+        String name = champions.getJSONObject(String.valueOf(id)).getString("key");
+        return name;
+    }
+    
+    public static String getPatchNo (InputStream is) throws IOException {
+        JSONArray patch = getJsonArr(is);
+        return patch.getString(0);
+        
+    }
     
     private static JSONArray getJsonArr (InputStream is) throws IOException {
         

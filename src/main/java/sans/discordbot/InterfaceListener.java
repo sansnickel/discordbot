@@ -6,7 +6,9 @@ import org.json.JSONException;
 
 import sans.discordbot.hearthstone.Card;
 import sans.discordbot.hearthstone.Hearthstone;
+import sans.discordbot.league.Game;
 import sans.discordbot.league.League;
+import sans.discordbot.league.SummonerInGame;
 import sans.discordbot.numbers.Numbers;
 import sans.discordbot.oxford.Oxford;
 import sans.discordbot.todo.Todo;
@@ -208,8 +210,67 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
     }
     
     void sendGameInfo(String msg, IChannel channel) {
-        String response = League.getLiveGameInfo(msg, this.key4);
-        sendMessage(response, channel);
+        try {
+
+            Game g = League.getLiveGameInfo(msg, this.key4);
+            if (g == null) {
+                sendMessage("Summoner " + msg + " is not in game.", channel);
+                return;
+            }
+                
+            for (int i = 0; i < g.getBlueTeam().size(); i++) {
+                
+                SummonerInGame s = g.getBlueTeam().get(i);
+                String champname = League.getChampionName(s.getChampion());
+                
+                EmbedBuilder b = new EmbedBuilder();
+                b.withAuthorName(s.getName());
+                b.withAuthorIcon(League.URL + League.PATCH_NO + "/img/champion/" + champname + ".png");
+                b.withTitle(s.getRank() + " --- " + s.getWinRate() + "%");
+                b.withDesc("");
+                b.withColor(0,0,255);
+                
+                for (int j = 0; j < s.getRunes().size(); j++) {
+                    long rune = s.getRunes().get(j);
+                    b.appendDesc(League.getRuneName(rune));
+                    if (j != s.getRunes().size() - 1) {
+                        b.appendDesc(" | ");
+                    }
+                }
+                
+                sendMessage(b.build(), channel);
+                
+            }
+           
+            for (int i = 0; i < g.getRedTeam().size(); i++) {
+                
+                SummonerInGame s = g.getRedTeam().get(i);
+                String champname = League.getChampionName(s.getChampion());
+                
+                EmbedBuilder b = new EmbedBuilder();
+
+                b.withAuthorName(s.getName());
+                b.withAuthorIcon(League.URL + League.PATCH_NO + "/img/champion/" + champname + ".png");
+                b.withTitle(s.getRank() + " --- " + s.getWinRate() + "%");
+                b.withDesc("");
+                b.withColor(255, 0, 0);
+                
+                for (int j = 0; j < s.getRunes().size(); j++) {
+                    long rune = s.getRunes().get(j);
+                    b.appendDesc(League.getRuneName(rune));
+                    if (j != s.getRunes().size() - 1) {
+                        b.appendDesc(" | ");
+                    }
+                }
+                
+                sendMessage(b.build(), channel);
+            }
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendMessage("Summoner " + msg + " not found.", channel);
+        }
+
     }
     
     
