@@ -1,6 +1,7 @@
 package sans.discordbot;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.json.JSONException;
 
@@ -19,7 +20,6 @@ import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionAddEvent;
 import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -129,22 +129,25 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
         
     }
 
-    void sendMessage(String msg, IChannel channel) {
-        
+    IMessage sendMessage(String msg, IChannel channel) {
+        IMessage sentmsg = null;
         if (msg != "") {
-            RequestBuffer.request(() -> {
-                IMessage sentmsg = new MessageBuilder(client).withChannel(channel).withContent(msg).build();
-            });
+            sentmsg = RequestBuffer.request(() -> {
+                return new MessageBuilder(client).withChannel(channel).withContent(msg).build();
+            }).get();
         }
+        return sentmsg;
         
     }
     
     IMessage sendMessage(EmbedObject e, IChannel channel) {
-
-        IMessage sentmsg = RequestBuffer.request(() -> {
-            return new MessageBuilder(client).withChannel(channel).withEmbed(e).build();
-        }).get();
-
+        IMessage sentmsg = null;
+        if (e != null) { 
+            sentmsg = RequestBuffer.request(() -> {
+                return new MessageBuilder(client).withChannel(channel).withEmbed(e).build();
+            }).get();
+        }
+        
         return sentmsg;
     }
     
@@ -218,53 +221,11 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
                 return;
             }
                 
-            for (int i = 0; i < g.getBlueTeam().size(); i++) {
-                
-                SummonerInGame s = g.getBlueTeam().get(i);
-                String champname = League.getChampionName(s.getChampion());
-                
-                EmbedBuilder b = new EmbedBuilder();
-                b.withAuthorName(s.getName());
-                b.withAuthorIcon(League.URL + League.PATCH_NO + "/img/champion/" + champname + ".png");
-                b.withTitle(s.getRank() + " --- " + s.getWinRate() + "%");
-                b.withDesc("");
-                b.withColor(0,0,255);
-                
-                for (int j = 0; j < s.getRunes().size(); j++) {
-                    long rune = s.getRunes().get(j);
-                    b.appendDesc(League.getRuneName(rune));
-                    if (j != s.getRunes().size() - 1) {
-                        b.appendDesc(" | ");
-                    }
-                }
-                
-                sendMessage(b.build(), channel);
-                
-            }
-           
-            for (int i = 0; i < g.getRedTeam().size(); i++) {
-                
-                SummonerInGame s = g.getRedTeam().get(i);
-                String champname = League.getChampionName(s.getChampion());
-                
-                EmbedBuilder b = new EmbedBuilder();
-
-                b.withAuthorName(s.getName());
-                b.withAuthorIcon(League.URL + League.PATCH_NO + "/img/champion/" + champname + ".png");
-                b.withTitle(s.getRank() + " --- " + s.getWinRate() + "%");
-                b.withDesc("");
-                b.withColor(255, 0, 0);
-                
-                for (int j = 0; j < s.getRunes().size(); j++) {
-                    long rune = s.getRunes().get(j);
-                    b.appendDesc(League.getRuneName(rune));
-                    if (j != s.getRunes().size() - 1) {
-                        b.appendDesc(" | ");
-                    }
-                }
-                
-                sendMessage(b.build(), channel);
-            }
+            int[] blue = {0, 0, 255};
+            int[] red = {255, 0, 0};
+            
+            sendTeamInfo(g.getBlueTeam(), channel, blue);
+            sendTeamInfo(g.getRedTeam(), channel, red);
             
         } catch (IOException e) {
             e.printStackTrace();
@@ -273,6 +234,38 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
 
     }
     
+    private void sendTeamInfo(List<SummonerInGame> team, IChannel channel, int[] color) {
+        for (int i = 0; i < team.size(); i++) {
+            
+            SummonerInGame s = team.get(i);
+            String champname = League.getChampionName(s.getChampion());
+            
+            EmbedBuilder b = new EmbedBuilder();
+            b.withAuthorName(s.getName());
+            b.withAuthorIcon(League.URL + League.PATCH_NO + "/img/champion/" + champname + ".png");
+
+            b.withTitle(s.getRank() + " --- " + s.getWinRate() + "%");
+            if (s.getWinRate() == -1) { 
+                b.withTitle(s.getRank() + " --- " + s.getWinRate() + "%");
+            }
+
+            b.withColor(color[0], color[1], color[2]);
+            
+            StringBuilder runes = new StringBuilder();
+            
+            for (int j = 0; j < s.getRunes().size(); j++) {
+                long rune = s.getRunes().get(j);
+                runes.append(League.getRuneName(rune));
+                if (j != s.getRunes().size() - 1) {
+                    runes.append(" | ");
+                }
+            }
+            b.withFooterText(runes.toString());
+            
+            sendMessage(b.build(), channel);
+            
+        }
+    }
     
     
     

@@ -7,9 +7,7 @@ public class SummonerInGame extends Summoner {
     
     private final long team;
     private final long champion;
-    private final List<Long> runes;
-
-    
+    private final List<Long> runes;    
 
     public SummonerInGame(String name, long id,  long level, String rank, int winrate, long team, long champion, List<Long> runes) {
         super(name, id, level, rank, winrate);
@@ -19,6 +17,9 @@ public class SummonerInGame extends Summoner {
         this.runes = new ArrayList<>(runes);
         
     }
+    public long getTeam() {
+        return this.team;
+    }
     
     public long getChampion() {
         return this.champion;
@@ -27,4 +28,5 @@ public class SummonerInGame extends Summoner {
     public List<Long> getRunes() { 
         return new ArrayList<>(runes);
     }
+    
 }

@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import sans.discordbot.hearthstone.Card;
-import sans.discordbot.hearthstone.Hearthstone;
 import sans.discordbot.league.Game;
 import sans.discordbot.league.League;
 import sans.discordbot.league.Summoner;
