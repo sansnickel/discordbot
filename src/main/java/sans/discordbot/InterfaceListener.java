@@ -2,6 +2,7 @@ package sans.discordbot;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.json.JSONException;
 
@@ -200,26 +201,28 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
     
     void sendWolfText(String msg, IChannel channel) {
  
-       ShortAnswer output = Wolfram.getText(msg, this.key2);
-       EmbedBuilder b = new EmbedBuilder();
+       try {
+           ShortAnswer output = Wolfram.getText(msg, this.key2).get();
+           EmbedBuilder b = new EmbedBuilder();
+           
+           b.appendField("Query", output.getQuery(), false);
+           b.appendField("Response", output.getResponse(), false);       
+            
+           IMessage m = sendMessage(b.build(), channel);
+           ReactionEmoji reaction = ReactionEmoji.of("🤔");
+           m.addReaction(reaction);
+       } catch (NoSuchElementException e) {
+           sendMessage("Error encoding query.", channel);
+       }
        
-       b.appendField("Query", output.getQuery(), false);
-       b.appendField("Response", output.getResponse(), false);       
-        
-       IMessage m = sendMessage(b.build(), channel);
-       ReactionEmoji reaction = ReactionEmoji.of("🤔");
-       m.addReaction(reaction);
+       
        
     }
     
     void sendGameInfo(String msg, IChannel channel) {
         try {
 
-            Game g = League.getLiveGameInfo(msg, this.key4);
-            if (g == null) {
-                sendMessage("Summoner " + msg + " is not in game.", channel);
-                return;
-            }
+            Game g = League.getLiveGameInfo(msg, this.key4).get();
                 
             int[] blue = {0, 0, 255};
             int[] red = {255, 0, 0};
@@ -227,6 +230,9 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
             sendTeamInfo(g.getBlueTeam(), channel, blue);
             sendTeamInfo(g.getRedTeam(), channel, red);
             
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+            sendMessage("Summoner " + msg + " is not in game.", channel);
         } catch (IOException e) {
             e.printStackTrace();
             sendMessage("Summoner " + msg + " not found.", channel);

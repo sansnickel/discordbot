@@ -14,9 +14,10 @@ public class Numbers {
     
     public static String getInfo(String type, String msg) {
            
-        try {
-
-            InputStream is = HttpRequest.sendGet(URL + msg + "/" + type);
+        String url = URL + msg + "/" + type;
+        
+        try (InputStream is = HttpRequest.sendGet(url);) {
+            
             String response = inputStreamToString(is);
             return JsonParser.toOutputBlock(response, "ml");
 

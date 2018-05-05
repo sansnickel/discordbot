@@ -3,6 +3,7 @@ package sans.discordbot.league;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.Optional;
 
 import sans.discordbot.HttpRequest;
 import sans.discordbot.JsonParser;
@@ -1486,11 +1487,9 @@ public class League {
         
         String url = URL + PATCH_NO + ".1/data/en_US/champion/" + str.toString() + ".json";
         
-        try {        
+        try (InputStream is = HttpRequest.sendGet(url);) {        
             
-            InputStream is = HttpRequest.sendGet(url);
             String response = JsonParser.parseJsonCds(is, str.toString());
-            is.close();
             return response;
             
         } catch (IOException e) {
@@ -1500,57 +1499,57 @@ public class League {
 
     }
     
-    public static Game getLiveGameInfo(String summoner, String key) throws IOException {
+    public static Optional<Game> getLiveGameInfo(String summoner, String key) throws IOException {
         
       
         Summoner s = getSummonerInfo(summoner, key);
+        String url = URL2 + "spectator/v3/active-games/by-summoner/" + s.getId();
     
-        try {
-            String url = URL2 + "spectator/v3/active-games/by-summoner/" + s.getId();
-    
-            InputStream is = HttpRequest.sendGetLoL(url, key);
+        try (InputStream is = HttpRequest.sendGetLoL(url, key);) {
+              
             Game response = JsonParser.parseJsonLiveGame(is, key);
-            is.close();
-            return response;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+            return Optional.of(response);
             
-
+        } catch (IOException e) {
+            
+            e.printStackTrace();
+            return Optional.empty();
+            
+        }
 
     }
     
     public static Summoner getSummonerInfo(String name, String key) throws IOException {
   
         String url = URL2 + "summoner/v3/summoners/by-name/" + URLEncoder.encode(name, "UTF-8").replace("+", "%20");
-        InputStream is = HttpRequest.sendGetLoL(url, key);
-        Summoner s = JsonParser.getSummonerInfo(is);
-        Summoner s2 = getSummonerSoloStats(s, key);
-
-        is.close();
         
-        return s2;
-
-
+        try (InputStream is = HttpRequest.sendGetLoL(url, key);) {
+            
+            Summoner s = JsonParser.getSummonerInfo(is);
+            Summoner s2 = getSummonerSoloStats(s, key);
+            
+            return s2;
+        }
     }
     
     public static Summoner getSummonerSoloStats(Summoner s, String key) throws IOException {
        
         String url = URL2 + "league/v3/positions/by-summoner/" + s.getId();
 
-        InputStream is = HttpRequest.sendGetLoL(url, key);
-        Summoner response = JsonParser.getSummonerSoloStats(s, is);
-        is.close();
-        
-        return response;
-   
-
+        try (InputStream is = HttpRequest.sendGetLoL(url, key);) {
+            
+            Summoner response = JsonParser.getSummonerSoloStats(s, is);
+            return response;
+            
+        }
+      
     }
 
     public static String getChampionName(long id) {
+        
         String name = JsonParser.getChampionName(id);
         return name;
+        
     }
     
     

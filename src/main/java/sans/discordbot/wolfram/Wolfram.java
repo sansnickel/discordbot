@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Optional;
 
 import sans.discordbot.HttpRequest;
 
@@ -18,33 +20,43 @@ public class Wolfram {
     public static InputStream getImage(String msg, String key) throws IOException { 
         
         String url = URLSIMPLE + key + "&i=" + URLEncoder.encode(msg, "UTF-8");
-        InputStream is = HttpRequest.sendGet(url);
-        return is;
+        
+        try (InputStream is = HttpRequest.sendGet(url);) {
+            return is;
+        }
         
     }
     
-    public static ShortAnswer getText(String query, String key) {
+    public static Optional<ShortAnswer> getText(String query, String key) {
        
+        String encodedquery = "";
         try {
             
-            String encodedquery = URLEncoder.encode(query, "UTF-8");
-            String url = URLSHORT + key + "&i=" + encodedquery;
-            String link = LINK + encodedquery;
+            encodedquery = URLEncoder.encode(query, "UTF-8");
+            
+        } catch (UnsupportedEncodingException e) {
+            return Optional.empty();
+        }
+        
+        String url = URLSHORT + key + "&i=" + encodedquery;
+        String link = LINK + encodedquery;
            
-            InputStream is = HttpRequest.sendGet(url);
+        try (InputStream is = HttpRequest.sendGet(url);
+             BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));) {
+            
             StringBuilder response = new StringBuilder();
-            BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));
             
             while (buffer.ready()) {
                 response.append(buffer.readLine());
             }
-            buffer.close();
             
-            return new ShortAnswer(query, encodedquery, response.toString(), link);    
+            return Optional.of(new ShortAnswer(query, encodedquery, response.toString(), link));    
       
         } catch (IOException e) {
+            
             e.printStackTrace();
-            return new ShortAnswer(query, null, "Could not interpret query.", null );
+            return Optional.of(new ShortAnswer(query, null, "Could not interpret query.", null));
+            
         }
     }
     

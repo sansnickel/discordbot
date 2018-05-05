@@ -15,6 +15,7 @@ public class Game {
         
 
     }
+    
     public List<SummonerInGame> getBlueTeam() {
         return new ArrayList<>(blueteam);
     }

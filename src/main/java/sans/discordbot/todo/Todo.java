@@ -48,52 +48,38 @@ public class Todo {
             return "Pin this message.";
         }
         try {
-            /*IMessage pin = RequestBuffer.request(() -> {
-                return channel.getPinnedMessages().get(0);
-            }).get();*/
+
             IMessage pin = getFirstPinnedMessage(channel);
+            
             if (request.startsWith("del")) {
+               
                 pin.edit(removeTodo(Integer.parseInt(request.substring(3).trim()), pin));
-                /*
-                IMessage newpin = RequestBuffer.request(() -> {
-                    return channel.getPinnedMessages().get(0);
-                }).get();*/
                 IMessage newpin = getFirstPinnedMessage(channel);
                 response = displayList(newpin);
           
             } else if (request.isEmpty()) {
+                
                 response = displayList(pin);
-            /*} else if (request.startsWith("s ")) {
-                try {
-                    String[] todos = request.split("\\r?\\n");
-                    System.out.println(todos.length);
-                    for (int i = 1; i < todos.length; i++) {
-                        System.out.println(todos[i]);
-                        Todo td = new Todo(todos[i]);
-                        pin.edit(td.insertTodo(pin));
-                        pin = getFirstPinnedMessage(channel);
-                    }
-                    IMessage newpin = getFirstPinnedMessage(channel);
-                    return displayList(newpin);
-                } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                    return "Todo not in the right format.";
-                }*/
+            
             } else {
+                
                 try {
+                    
                     Todo td = new Todo(request);
                     pin.edit(td.insertTodo(pin));
-                    /*IMessage newpin = RequestBuffer.request(() -> {
-                        return channel.getPinnedMessages().get(0);
-                    }).get();*/
                     IMessage newpin = getFirstPinnedMessage(channel);
                     return displayList(newpin);
+                    
                 } catch (IndexOutOfBoundsException e) {
+                    
                     e.printStackTrace();
                     return "Todo not in the right format.";
+                    
                 }
             }
+            
             return response;
+            
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return "Use !todo setup and pin the message first.";
@@ -170,7 +156,7 @@ public class Todo {
             if (added == false) {
                 newpin.append("\n" + this.toString());
             }
-            //System.out.println(newpin.toString());
+
             return newpin.toString();
         }
     }

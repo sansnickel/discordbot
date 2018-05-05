@@ -10,15 +10,14 @@ import sans.discordbot.JsonParser;
 
 public class Oxford {
 
-    private static final String url = "https://od-api.oxforddictionaries.com:443/api/v1/entries/en/";
+    private static final String URL = "https://od-api.oxforddictionaries.com:443/api/v1/entries/en/";
     
     
     public static String getDef(String msg, String appid, String key) {
         
-        try {
-            
-            
-            InputStream is = HttpRequest.sendGetOxf(url + msg, appid, key);
+        String url = URL + msg;
+        try (InputStream is = HttpRequest.sendGetOxf(url, appid, key);) {
+                     
             String response = JsonParser.parseJsonOxf(is);
             return response;
             
