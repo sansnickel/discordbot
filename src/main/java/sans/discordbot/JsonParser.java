@@ -23,7 +23,12 @@ import sans.discordbot.oxford.Entry;
 /** A collection of methods to extract desired information from InputStreams carrying JSON Objects. */
 public class JsonParser {
 
-    
+    /** Gets the definition from an InputStream carrying a JSON object from the Oxford API.
+     * @param is The InputStream
+     * @return A Definition Object
+     * @throws IOException if there was a problem getting the info from Oxford API
+     * @throws JSONException if there was a problem parsing the JSON
+     */
     public static Definition getDef(InputStream is) throws IOException, JSONException {
         
         JSONObject obj = getJsonObj(is);       
@@ -55,6 +60,12 @@ public class JsonParser {
         return new Definition(word, entries);
     }
     
+    /** Gets the card information from an InputStream carrying a JSON Object from the Mashape API.
+     * @param is The InputStream
+     * @return a Card object
+     * @throws IOException if there was a problem getting the info from Mashape (card does not exist, etc.)
+     * @throws JSONException if there was a problem parsing the JSON
+     */
     public static Card getCard(InputStream is) throws IOException, JSONException {
        
         // assumption that no collectible card has the same name
@@ -69,13 +80,20 @@ public class JsonParser {
         return new Card(name, cardset, flavor, img, artist);
     }
         
-    public static String getSpells(InputStream is, String str) throws IOException, JSONException {
+    /** Gets the cooldowns of a champion's spells in League of Legends.
+     * @param is The InputStream
+     * @param champ The Champion Name
+     * @return a String for the bot to output (shown to user)
+     * @throws IOException if there was a problem getting the information from ddragon
+     * @throws JSONException if there was a problem parsing the JSON
+     */
+    public static String getSpells(InputStream is, String champ) throws IOException, JSONException {
         
         JSONObject obj = getJsonObj(is);
-        JSONArray arr = obj.getJSONObject("data").getJSONObject(str).getJSONArray("spells");
+        JSONArray arr = obj.getJSONObject("data").getJSONObject(champ).getJSONArray("spells");
         
         StringBuilder response = new StringBuilder();
-        response.append(str + " Cooldowns\n");
+        response.append(champ + " Cooldowns\n");
         
         for(int i = 0; i < arr.length(); i++) {
            
@@ -94,6 +112,13 @@ public class JsonParser {
         return toOutputBlock(response.toString(), "python"); 
     }
     
+    /** Gets the live game information of a player in League of Legends from an InputStream carrying a JSON Object from the League API.
+     * @param is
+     * @param key
+     * @return a Game object with the participants, their ranks, win rates, and runes
+     * @throws IOException if there was a problem getting the information from the League API
+     * @throws JSONException if there was a problem parsing the JSON
+     */
     public static Game getLiveGame(InputStream is, String key) throws IOException, JSONException {
         
         List<SummonerInGame> blueteam = new ArrayList<SummonerInGame>();
@@ -138,6 +163,12 @@ public class JsonParser {
         return new Game(blueteam, redteam);
     }
     
+    /** Gets the name, id, and level of a summoner in League of Legends given the InputStream carrying a JSON object from the League API.
+     * @param is the InputStream
+     * @return a Summoner object with the information
+     * @throws IOException if there was a problem getting information from the League API
+     * @throws JSONException if there was a problem parsing the JSON
+     */
     public static Summoner getSummonerInfo(InputStream is) throws IOException, JSONException {
         
         JSONObject obj = getJsonObj(is);
@@ -149,6 +180,13 @@ public class JsonParser {
         return new Summoner(name, id, level);
     }
     
+    /** Adds the rank and win rate information of a summoner in League of Legends given the InputStream carrying a JSON object from the League API, as well as an existing Summoner object.
+     * @param s the Summoner
+     * @param is the InputStream
+     * @return an updated Summoner object
+     * @throws IOException if there was a problem getting information from the League API
+     * @throws JSONException if there was a problem parsing the JSON
+     */
     public static Summoner getSummonerSoloStats(Summoner s, InputStream is) throws IOException, JSONException {
         
         JSONArray arr = getJsonArr(is);
@@ -180,6 +218,10 @@ public class JsonParser {
 
     }
     
+    /** Gets the rune name given the id of a rune (as stated by the League API). 
+     * @param id the id of the rune
+     * @return the name of the rune
+     */
     public static String getRuneName (long id) {
         JSONArray runes = new JSONArray(League.RUNES);
         for (int i = 0; i < runes.length(); i++) {
@@ -191,18 +233,32 @@ public class JsonParser {
         return "";
     }
     
+    /** Gets the name of a League champion given its id (as stated by the League API).
+     * @param id the id of the champion
+     * @return the name of the champion
+     */
     public static String getChampionName (long id) {
         JSONObject champions = new JSONObject(League.CHAMPIONS).getJSONObject("data");
         String name = champions.getJSONObject(String.valueOf(id)).getString("key");
         return name;
     }
     
+    /** Gets the current League of Legends patch as stated by ddragon.
+     * @param is the InputStream from ddragon carrying a JSON object of the versions
+     * @return the current patch number
+     * @throws IOException if there was a problem getting information from ddragon 
+     */
     public static String getPatchNo (InputStream is) throws IOException {
         JSONArray patch = getJsonArr(is);
         return patch.getString(0);
         
     }
     
+    /** Gets a JSONArray object from an InputStream
+     * @param is the InputStream
+     * @return a JSONArray representation of the data in the stream
+     * @throws IOException if there was a problem reading from the stream
+     */
     private static JSONArray getJsonArr (InputStream is) throws IOException {
         
         BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));
@@ -212,6 +268,11 @@ public class JsonParser {
         return new JSONArray(jsonTxt);
     }
     
+    /** Gets a JSONObject from an InputStream
+     * @param is the InputStream
+     * @return a JSONObject representation of the data in the stream
+     * @throws IOException if there was a problem reading from the stream
+     */
     private static JSONObject getJsonObj (InputStream is) throws IOException {
         
         BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));
@@ -221,6 +282,11 @@ public class JsonParser {
         
     }
     
+    /** Formats a String to be displayed as a code block in Discord.
+     * @param msg the message to be displayed
+     * @param lang the syntax highlighting language
+     * @return a String ready to be displayed in Discord
+     */
     public static String toOutputBlock(String msg, String lang) {
         
         return "```" + lang + "\n" + msg + "```";

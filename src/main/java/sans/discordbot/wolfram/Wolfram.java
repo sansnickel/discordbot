@@ -10,6 +10,11 @@ import java.util.Optional;
 
 import sans.discordbot.HttpRequest;
 
+/**
+ * A collection of methods for getting information from Wolfram's API. 
+ * 
+ *
+ */
 
 public class Wolfram {
 

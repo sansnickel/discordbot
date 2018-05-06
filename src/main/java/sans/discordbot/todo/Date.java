@@ -1,6 +1,12 @@
 package sans.discordbot.todo;
 
+/**
+ * Represents a date as I need it because the default ones that exist for Java are way too much.
+ * 
+ *
+ */
 public class Date {
+    
     
     private final int month;
     private final int day;

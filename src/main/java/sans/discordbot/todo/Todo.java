@@ -5,6 +5,11 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.RequestBuffer;
 
+/**
+ * Represents a to-do as implemented for a to-do list that can be edited in Discord.
+ * 
+ *
+ */
 public class Todo {
 
     private final String course;

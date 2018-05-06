@@ -3,6 +3,11 @@ package sans.discordbot.league;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a League of Legends game (in terms of its participants). 
+ * 
+ *
+ */
 public class Game {
 
     private final List<SummonerInGame> blueteam;

@@ -7,11 +7,18 @@ import java.net.ProtocolException;
 import java.net.URL;
 import com.google.common.util.concurrent.RateLimiter;
 
+/** A collection of methods for sending http requests to different addresses with the respective key/id information.
+ *
+ */
 public class HttpRequest {
     
     private static final RateLimiter throttle = RateLimiter.create(5);
     
-    /** Sends a GET Request to the given URL and returns the InputStream received */
+    /** Sends a general GET request. 
+     * @param url the URL to send the request to
+     * @return an InputStream to the data
+     * @throws IOException if there was a problem accessing the information
+     */
     public static InputStream sendGet(String url) throws IOException {
        
         HttpURLConnection c = getHttpURLConnection(url);
@@ -20,7 +27,12 @@ public class HttpRequest {
         
     }
     
-    // Sends a GET Request to the given URL with the HS X-Mashape-Key and returns the InputStream received
+    /** Sends a GET Request to the given URL with the HS X-Mashape-Key.
+     * @param url the URL to send the request to
+     * @param key the X-Mashape-Key
+     * @return an InputStream to the data
+     * @throws IOException if there was a problem accessing the information
+     */
     public static InputStream sendGetHS(String url, String key) throws IOException {
        
         HttpURLConnection c = getHttpURLConnection(url);
@@ -30,6 +42,14 @@ public class HttpRequest {
         
     }
     
+    /**
+     * Sends a GET Request to the given URL with Oxford API Credentials.
+     * @param url the URL to send the request to
+     * @param appid the personal appid for the API
+     * @param key the personal key for the API
+     * @return an InputStream to the data
+     * @throws IOException if there was a problem accessing the information
+     */
     public static InputStream sendGetOxf(String url, String appid, String key) throws IOException {
         
         HttpURLConnection c = getHttpURLConnection(url);
@@ -39,6 +59,13 @@ public class HttpRequest {
         
     }
     
+    /**
+     * Sends a GET Request to the given URL with the League API key.
+     * @param url the URL to send the request to
+     * @param key the personal League API key
+     * @return an InputStream to the data
+     * @throws IOException if there was a problem accessing the information
+     */
     public static InputStream sendGetLoL(String url, String key) throws IOException {
         
         throttle.acquire(6);

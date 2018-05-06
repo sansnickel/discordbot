@@ -1,5 +1,10 @@
 package sans.discordbot.wolfram;
 
+/**
+ * Represents a short answer from Wolfram's API. 
+ * 
+ *
+ */
 public class ShortAnswer {
 
     private final String query;

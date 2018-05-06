@@ -3,6 +3,12 @@ package sans.discordbot.oxford;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a dictionary definition. 
+ * 
+ *
+ */
+
 public class Definition {
     
     private final String word;

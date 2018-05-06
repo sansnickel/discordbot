@@ -1,5 +1,10 @@
 package sans.discordbot.hearthstone;
 
+/**
+ * 
+ * Represents a Hearthstone Card. 
+ *
+ */
 public class Card {
 
     private final String name;

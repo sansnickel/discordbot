@@ -3,6 +3,12 @@ package sans.discordbot.league;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a Summoner in a game. 
+ *
+ *
+ */
+
 public class SummonerInGame extends Summoner {
     
     private final long team;

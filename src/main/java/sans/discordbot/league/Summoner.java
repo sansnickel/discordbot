@@ -1,5 +1,10 @@
 package sans.discordbot.league;
 
+/**
+ * Represents a Summoner in League of Legends.
+ * 
+ *
+ */
 public class Summoner {
 
     private final String name;

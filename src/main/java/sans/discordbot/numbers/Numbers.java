@@ -8,6 +8,11 @@ import java.io.InputStreamReader;
 import sans.discordbot.HttpRequest;
 import sans.discordbot.JsonParser;
 
+/**
+ * A collection of methods related to getting information from the Numbers API.
+ * 
+ *
+ */
 public class Numbers {
     
     private final static String URL = "http://numbersapi.com/";

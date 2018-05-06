@@ -9,7 +9,11 @@ import sans.discordbot.HttpRequest;
 import sans.discordbot.JsonParser;
 
 
-
+/**
+ * A collection of methods for getting information related to League.
+ * 
+ *
+ */
 public class League {
       
     public static String PATCH_NO;
@@ -1475,6 +1479,11 @@ public class League {
             "    }\r\n" + 
             "]";
     
+    /** Gets the cooldowns of a champion 
+     * 
+     * @param champ the champion name
+     * @return the string to be shown to the user
+     */
     
     public static String getCDs(String champ) {
         
@@ -1499,6 +1508,13 @@ public class League {
 
     }
     
+    /** Gets the live game information of a summoner in League. 
+     * 
+     * @param summoner the summoner's name
+     * @param key the personal League of Legends API key
+     * @return live game information if there is a current game, an empty game object otherwise
+     * @throws IOException if the summoner's name was not found
+     */
     public static Optional<Game> getLiveGameInfo(String summoner, String key) throws IOException {
         
       

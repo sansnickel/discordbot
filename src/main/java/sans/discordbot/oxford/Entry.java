@@ -3,6 +3,11 @@ package sans.discordbot.oxford;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents entries for a particular part of speech for a definiton of a word. 
+ * 
+ *
+ */
 public class Entry {
 
     private final String lexcat;

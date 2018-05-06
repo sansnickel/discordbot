@@ -10,6 +10,11 @@ import org.json.JSONException;
 import sans.discordbot.HttpRequest;
 import sans.discordbot.JsonParser;
 
+/**
+ * A collection of methods related to getting information from the Oxford API.
+ * 
+ *
+ */
 public class Oxford {
 
     private static final String URL = "https://od-api.oxforddictionaries.com:443/api/v1/entries/en/";
