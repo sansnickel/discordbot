@@ -1485,11 +1485,11 @@ public class League {
             str.append(word.substring(0,1).toUpperCase() + word.substring(1));
         }
         
-        String url = URL + PATCH_NO + ".1/data/en_US/champion/" + str.toString() + ".json";
+        String url = URL + PATCH_NO + "/data/en_US/champion/" + str.toString() + ".json";
         
         try (InputStream is = HttpRequest.sendGet(url);) {        
             
-            String response = JsonParser.parseJsonCds(is, str.toString());
+            String response = JsonParser.getSpells(is, str.toString());
             return response;
             
         } catch (IOException e) {
@@ -1507,7 +1507,7 @@ public class League {
     
         try (InputStream is = HttpRequest.sendGetLoL(url, key);) {
               
-            Game response = JsonParser.parseJsonLiveGame(is, key);
+            Game response = JsonParser.getLiveGame(is, key);
             return Optional.of(response);
             
         } catch (IOException e) {

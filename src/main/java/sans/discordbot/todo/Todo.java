@@ -96,7 +96,7 @@ public class Todo {
         return "[" + this.getCourse() + "] " + this.getItem() + numSpaces(42 - this.getItem().length() - this.getLocation().length()) + this.getLocation() + "  " + this.getDate().toDisplayString();
     }
     
-    public String numSpaces(int n) {
+    public static String numSpaces(int n) {
         StringBuilder s = new StringBuilder();
         int i = 0;
         while (i<n) {
@@ -118,7 +118,7 @@ public class Todo {
     }
     
     public Date getDate() {
-        return this.date;
+        return new Date(this.date.toString());
     }
     
     private static String displayList(IMessage pin) {

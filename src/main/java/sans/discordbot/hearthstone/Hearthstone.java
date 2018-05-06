@@ -18,7 +18,7 @@ public class Hearthstone {
 
         String url = URL + URLEncoder.encode(card, "UTF-8").replace("+", "%20") + "?collectible=1";
         InputStream is = HttpRequest.sendGetHS(url, key);
-        Card hscard = JsonParser.parseJsonCard(is);
+        Card hscard = JsonParser.getCard(is);
         is.close();
         return hscard;
  

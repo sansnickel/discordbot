@@ -17,33 +17,45 @@ import sans.discordbot.league.Game;
 import sans.discordbot.league.League;
 import sans.discordbot.league.Summoner;
 import sans.discordbot.league.SummonerInGame;
+import sans.discordbot.oxford.Definition;
+import sans.discordbot.oxford.Entry;
 
 /** A collection of methods to extract desired information from InputStreams carrying JSON Objects. */
 public class JsonParser {
 
     
-    public static String parseJsonOxf(InputStream is) throws IOException, JSONException {
+    public static Definition getDef(InputStream is) throws IOException, JSONException {
         
-        JSONObject obj = getJsonObj(is);
+        JSONObject obj = getJsonObj(is);       
         JSONArray arr = obj.getJSONArray("results").getJSONObject(0).getJSONArray("lexicalEntries");
         
-        StringBuilder response = new StringBuilder();
-        response.append(obj.getJSONArray("results").getJSONObject(0).getString("id")+"\n");
+        String word = obj.getJSONArray("results").getJSONObject(0).getString("id");
+        List<Entry> entries = new ArrayList<Entry>();
         
         for (int i = 0; i < arr.length(); i++) {
-            
+ 
             JSONArray senses = arr.getJSONObject(i).getJSONArray("entries").getJSONObject(0).getJSONArray("senses");
-            response.append(arr.getJSONObject(i).getString("lexicalCategory") + "\n");
+            
+            String lexcat = arr.getJSONObject(i).getString("lexicalCategory");
+            List<String> defs = new ArrayList<String>();
+            
+            
             for (int j = 0; j < senses.length(); j++) {
-                response.append((j+1) + ". " + senses.getJSONObject(j).getJSONArray("definitions").getString(0) + "\n");
                 
+                if(senses.getJSONObject(j).has("definitions")) {
+                    defs.add(senses.getJSONObject(j).getJSONArray("definitions").getString(0));
+                }
             }
+            
+            Entry e = new Entry(lexcat, defs);
+            entries.add(e);            
+            
         }
         
-        return toOutputBlock(response.toString(), "ml");
+        return new Definition(word, entries);
     }
     
-    public static Card parseJsonCard(InputStream is) throws IOException, JSONException {
+    public static Card getCard(InputStream is) throws IOException, JSONException {
        
         // assumption that no collectible card has the same name
         JSONObject card = getJsonArr(is).getJSONObject(0);
@@ -57,7 +69,7 @@ public class JsonParser {
         return new Card(name, cardset, flavor, img, artist);
     }
         
-    public static String parseJsonCds(InputStream is, String str) throws IOException, JSONException {
+    public static String getSpells(InputStream is, String str) throws IOException, JSONException {
         
         JSONObject obj = getJsonObj(is);
         JSONArray arr = obj.getJSONObject("data").getJSONObject(str).getJSONArray("spells");
@@ -82,7 +94,7 @@ public class JsonParser {
         return toOutputBlock(response.toString(), "python"); 
     }
     
-    public static Game parseJsonLiveGame(InputStream is, String key) throws IOException, JSONException {
+    public static Game getLiveGame(InputStream is, String key) throws IOException, JSONException {
         
         List<SummonerInGame> blueteam = new ArrayList<SummonerInGame>();
         List<SummonerInGame> redteam = new ArrayList<SummonerInGame>();

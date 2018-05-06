@@ -12,6 +12,7 @@ import sans.discordbot.league.Game;
 import sans.discordbot.league.League;
 import sans.discordbot.league.SummonerInGame;
 import sans.discordbot.numbers.Numbers;
+import sans.discordbot.oxford.Definition;
 import sans.discordbot.oxford.Oxford;
 import sans.discordbot.todo.Todo;
 import sans.discordbot.wolfram.ShortAnswer;
@@ -195,8 +196,29 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
     
     void sendDefInfo(String msg, IChannel channel) {
         
-        String response = Oxford.getDef(msg, this.id1, this.key3);
-        sendMessage(response, channel);
+        try {
+            Definition def = Oxford.getDef(msg, this.id1, this.key3);
+            
+            EmbedBuilder b = new EmbedBuilder();
+            b.withTitle(def.getWord());
+            b.withColor(115, 135, 220);            
+            
+            for (int i = 0; i < def.getEntries().size(); i++) {
+                StringBuilder sb = new StringBuilder();
+                for (int j = 0; j < def.getEntries().get(i).getDefs().size(); j++) {
+                    sb.append(j+1 + ". ");
+                    sb.append(def.getEntries().get(i).getDefs().get(j));
+                    sb.append("\n");
+                }
+                           
+                b.appendField(def.getEntries().get(i).getLexCat(), sb.toString(), false);
+            }       
+            
+            sendMessage(b.build(), channel);
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendMessage("Cannot find definition for " + msg, channel);
+        }
     }
     
     void sendWolfText(String msg, IChannel channel) {
