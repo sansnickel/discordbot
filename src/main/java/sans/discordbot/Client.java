@@ -4,6 +4,7 @@ import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.util.DiscordException;
 
+/** Builds the client to log in to Discord */
 
 public class Client {
     
