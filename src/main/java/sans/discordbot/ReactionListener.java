@@ -76,8 +76,14 @@ public class ReactionListener implements IListener<ReactionAddEvent> {
         IMessage m = RequestBuffer.request(() -> {
             return new MessageBuilder(client).withChannel(channel).withFile(is, name).build();
         }).get();
-
-        return m;
+        
+        try {
+            is.close();
+            return m;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return m;
+        }        
     } 
     
     IMessage sendMessage(String msg, IChannel channel) {

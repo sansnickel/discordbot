@@ -19,7 +19,7 @@ public class Todo {
     
     
     public Todo (String course, String item, String location, Date date){
-        this.course = course.toUpperCase();
+        this.course = course.toUpperCase().substring(0, course.length() < 8 ? course.length() : 8);
         this.item = item;
         this.location = location;
         this.date = date;        
@@ -35,7 +35,7 @@ public class Todo {
         //System.out.println(fields.length);
         //System.out.println(fields[3].trim());
         
-        this.course = fields[0].trim().toUpperCase();
+        this.course = fields[0].trim().toUpperCase().substring(0, fields[0].trim().length() < 8 ? fields[0].trim().length() : 8);
         this.item = fields[1].trim();
         this.location = fields[2].trim();
         this.date = new Date(fields[3].trim());
@@ -49,7 +49,7 @@ public class Todo {
         String request = msg; 
         String response;
         
-        if (request.startsWith(" setup")) {
+        if (request.startsWith("setup")) {
             return "Pin this message.";
         }
         try {
@@ -98,7 +98,7 @@ public class Todo {
     
     public String toDisplayString() {
         
-        return "[" + this.getCourse() + "] " + this.getItem() + numSpaces(42 - this.getItem().length() - this.getLocation().length()) + this.getLocation() + "  " + this.getDate().toDisplayString();
+        return "[" + this.getCourse() + "] " + numSpaces(8-this.getCourse().length()) + this.getItem() + numSpaces(42 - this.getItem().length() - this.getLocation().length()) + this.getLocation() + "  " + this.getDate().toDisplayString();
     }
     
     public static String numSpaces(int n) {

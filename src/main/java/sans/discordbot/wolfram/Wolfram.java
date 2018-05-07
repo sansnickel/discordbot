@@ -26,9 +26,9 @@ public class Wolfram {
         
         String url = URLSIMPLE + key + "&i=" + URLEncoder.encode(msg, "UTF-8");
         
-        try (InputStream is = HttpRequest.sendGet(url);) {
-            return is;
-        }
+        InputStream is = HttpRequest.sendGet(url);
+        return is;
+        
         
     }
     
