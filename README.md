@@ -6,7 +6,7 @@
 
 Use !wolf [query] to get short answers from Wolfram.
 
-![alt text](https://i.imgur.com/a6yPziA.png "!wolf cad to usd" =200x)
+<img src=https://i.imgur.com/a6yPziA.png alt="!wolf cad to usd" width=200px>
 
 React to the 🤔reaction to get more in-depth answers.
 
