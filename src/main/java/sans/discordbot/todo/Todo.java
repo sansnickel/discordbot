@@ -128,6 +128,9 @@ public class Todo {
     
     private static String displayList(IMessage pin) {
         String tds[] = pin.getContent().split("\n");
+        
+        if (tds.length == 1) return "";        
+        
         StringBuilder newmsg = new StringBuilder();
         newmsg.append("```");
         for (int i = 1; i < tds.length; i++) {
