@@ -267,14 +267,14 @@ public class InterfaceListener implements IListener<MessageReceivedEvent> { // T
             
             SummonerInGame s = team.get(i);
             String champname = League.getChampionName(s.getChampion());
-            
+              
             EmbedBuilder b = new EmbedBuilder();
             b.withAuthorName(s.getName());
             b.withAuthorIcon(League.URL + League.PATCH_NO + "/img/champion/" + champname + ".png");
 
             b.withTitle(s.getRank() + " --- " + s.getWinRate() + "%");
             if (s.getWinRate() == -1) { 
-                b.withTitle(s.getRank() + " --- " + s.getWinRate() + "%");
+                b.withTitle(s.getRank());
             }
 
             b.withColor(color[0], color[1], color[2]);

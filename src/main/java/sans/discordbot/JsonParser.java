@@ -193,7 +193,7 @@ public class JsonParser {
         
         String name = s.getName();
         long id = s.getId();
-        String rank = "";
+        String rank = "UNRANKED";
         long level = s.getLevel();
         int winrate = -1;
                 
@@ -237,10 +237,42 @@ public class JsonParser {
      * @param id the id of the champion
      * @return the name of the champion
      */
-    public static String getChampionName (long id) {
-        JSONObject champions = new JSONObject(League.CHAMPIONS).getJSONObject("data");
-        String name = champions.getJSONObject(String.valueOf(id)).getString("key");
+    public static String getChampionName (long id) throws IOException {
+        
+        
+        String name = "";
+        JSONObject champions = new JSONObject(League.getAllChampNames()).getJSONObject("data");
+        for (int i = 0; i < champions.names().length(); i++) {
+            JSONObject champ = champions.getJSONObject(champions.names().getString(i));
+            
+            if (champ.getString("key").equals(String.valueOf(id))) {
+                name = champions.names().getString(i);
+                break;
+            }
+        }
+
         return name;
+    }
+    
+    public static String getRealChampName (String champ) throws IOException {
+        String name = "";
+        JSONObject champions = new JSONObject(League.getAllChampNames()).getJSONObject("data");
+        for (int i = 0; i < champions.names().length(); i++) {
+            JSONObject champion = champions.getJSONObject(champions.names().getString(i));
+            if (champion.getString("name").equals(champ)) {
+                name = champion.getString("id");
+                break;
+            }
+        }
+        
+        return name;
+    }
+    
+    public static String getAllChampNames (InputStream is) throws IOException {
+        BufferedReader buffer = new BufferedReader (new InputStreamReader(is, "UTF-8"));
+        String jsonTxt = buffer.lines().collect(Collectors.joining("\n"));
+        buffer.close();
+        return jsonTxt;
     }
     
     /** Gets the current League of Legends patch as stated by ddragon.

@@ -42,7 +42,6 @@ public class ReactionListener implements IListener<ReactionAddEvent> {
     @Override
     public void handle(ReactionAddEvent event) {
         
-        
         IChannel channel = event.getChannel();         
         IMessage m = event.getMessage();
         
@@ -52,8 +51,6 @@ public class ReactionListener implements IListener<ReactionAddEvent> {
                                                            // getUsers().size() 
             sendWolfImage(query, channel);
         }
-        
-        
         
     }
     

@@ -23,6 +23,7 @@ public class Main
             String response = JsonParser.getPatchNo(is);
             is.close();
             League.PATCH_NO = response;
+           
             
         } catch (IOException e) {
             League.PATCH_NO = "8.9.1";

@@ -20,7 +20,7 @@ public class League {
     public final static String URL = "https://ddragon.leagueoflegends.com/cdn/";
     private final static String URL2 = "https://na1.api.riotgames.com/lol/";
     
-    public final static String CHAMPIONS = "{\r\n" + 
+    /*public final static String CHAMPIONS = "{\r\n" + 
             "    \"type\": \"champion\",\r\n" + 
             "    \"version\": \"8.8.2\",\r\n" + 
             "    \"data\": {\r\n" + 
@@ -865,7 +865,7 @@ public class League {
             "            \"name\": \"Ornn\"\r\n" + 
             "        }\r\n" + 
             "    }\r\n" + 
-            "}";
+            "}"; */
     public final static String RUNES = "[\r\n" + 
             "    {\r\n" + 
             "        \"runePathName\": \"Domination\",\r\n" + 
@@ -1494,11 +1494,19 @@ public class League {
             str.append(word.substring(0,1).toUpperCase() + word.substring(1));
         }
         
-        String url = URL + PATCH_NO + "/data/en_US/champion/" + str.toString() + ".json";
-        
-        try (InputStream is = HttpRequest.sendGet(url);) {        
+        String champname = "";
+        try {
+            champname = getRealChampName(str.toString());  
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Cannot find champ.";
+        }
+        String url = URL + PATCH_NO + "/data/en_US/champion/" + champname + ".json";
             
-            String response = JsonParser.getSpells(is, str.toString());
+        try (InputStream is = HttpRequest.sendGet(url); ) {        
+            
+          
+            String response = JsonParser.getSpells(is, champname);
             return response;
             
         } catch (IOException e) {
@@ -1506,6 +1514,23 @@ public class League {
             return "Cannot find champ.";
         }
 
+    }
+    
+    public static String getRealChampName(String champ) throws IOException {
+     
+        String response = JsonParser.getRealChampName(champ);
+        return response;
+    
+        
+    }
+    
+    public static String getAllChampNames() throws IOException {
+        String url = URL + PATCH_NO + "/data/en_US/champion.json";
+        try (InputStream is = HttpRequest.sendGet(url);) {
+            String response = JsonParser.getAllChampNames(is);
+            return response;
+        }
+        
     }
     
     /** Gets the live game information of a summoner in League. 
@@ -1563,7 +1588,14 @@ public class League {
 
     public static String getChampionName(long id) {
         
-        String name = JsonParser.getChampionName(id);
+        String name;
+        try {
+            name = JsonParser.getChampionName(id);
+        } catch (IOException e) {
+            
+            e.printStackTrace();
+            name = "Aatrox";
+        }
         return name;
         
     }
